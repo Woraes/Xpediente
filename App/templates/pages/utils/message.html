@@ -1,0 +1,24 @@
+{% load static %}
+
+
+
+
+<ul class="messages" id="messages-list">
+{% if messages %}
+    {% for message in messages %}
+    
+        {% if message.tags %}
+             <div class="alert alert-{{ message.tags }} msg fade show" role="alert">{{ message }}</div>
+        {% else %}
+            <div class="alert alert-info msg fade show" role="alert">{{ message  }}oi<i class="bi bi-check-circle-fill"></i></div>
+        {% endif %}
+    
+    {% endfor %}
+{% endif %}
+</ul>
+<script>
+    setTimeout(function() {
+      const messages = document.querySelectorAll('.messages');
+      messages.forEach(message => message.style.display = 'none');
+    }, 5000);
+    </script>

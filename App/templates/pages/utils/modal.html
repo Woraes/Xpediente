@@ -1,0 +1,39 @@
+{% extends 'pages/base/modelo.html' %}
+
+{% load static %}
+
+
+{% block conteudo %}
+<div class="modal fade" id="deleteModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="exampleModalLabel">Delete Confirmation</h5>
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+        <div class="modal-body">
+          Are you sure you want to delete this item?
+        </div>
+        <div class="modal-footer">
+          <a href="{% url 'prefeitura_delete' prefeitura.id %}" class="btn btn-danger", title='Deletar'><i class="bi bi-trash"></i></a>          <a href="" class="btn btn-danger">Delete</a>
+        </div>
+      </div>
+    </div>
+  </div>
+  {% endblock conteudo %}
+  <script>
+    $(document).ready(function() {
+      $('#deleteModal').on('show.bs.modal', function (event) {
+        var button = $(event.relatedTarget) // Button that triggered the modal
+        var recipient = button.data('whatever') // Extract info from data-* attributes
+        // If necessary, you could initiate an AJAX request here (and then do the updating in a callback).
+        // Update the modal's content. We'll use jQuery here, but you could use a data binding library or other methods instead.
+        var modal = $(this)
+        modal.find('.modal-title').text('Delete Confirmation')
+        modal.find('.modal-body').text('Are you sure you want to delete this item?')
+      })
+    });
+  </script>
+  

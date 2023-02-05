@@ -1,0 +1,57 @@
+
+{% load static %}
+
+
+
+{%block titulo%} 
+<title>Lista Prefeituras </title>
+{% endblock %}
+
+{% block saudacao %}
+{% endblock saudacao %}
+
+{%block conteudo%}
+<div class="card ">
+    
+    <div class="table-responsive-lg">
+        <table class="table table-striped">
+            <tr>
+                <th>Nome </th>
+                
+                <th>Opções</th>
+            </tr>
+            {%for prefeitura in object_list%}
+            <tr>
+                <td>{{prefeitura.nome}}</td>
+                
+                <td>
+                    <a href="{% url 'prefeitura_update' prefeitura.id %}"class="btn btn-warning", title='Editar'><i class="bi bi-pencil-square" style="font-size: 1rem; color: cornflowerblue;"></i></a>
+                    <a href="{% url 'prefeitura_delete' prefeitura.id %}"class="btn btn-danger", title='Deletar'  ><i class="bi bi-trash"></i></a>                  
+                    <button type="button" class="btn btn-danger" data-toggle="modal" data-target="#deleteModal">
+                        Delete
+                      </button>
+                      <a href="{% url 'prefeitura_delete' prefeitura.id %}"class="btn btn-danger", title='Deletar'  ><i class="bi bi-trash"></i></a>                  
+
+                </td>
+            </tr>
+            {%empty%}
+            <tr>
+                <td>Nenhuma Prefeitura Registrada</td>
+            </tr>
+
+            {%endfor%}
+        </table>
+        
+
+
+</div>  
+
+
+{% include 'pages/utils/modal.html' %}
+
+  
+  {% endblock %}
+
+ 
+  
+  
