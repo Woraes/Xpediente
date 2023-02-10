@@ -12809,6 +12809,9 @@ a.close.disabled {
 .bg-primary {
   background-color: #0090e7 !important; }
 
+  .bg-pri {
+    background-image: url('/static/images/samples/1280x768/14.jpg') !important; }
+
 a.bg-primary:hover, a.bg-primary:focus,
 button.bg-primary:hover,
 button.bg-primary:focus {
@@ -16572,6 +16575,13 @@ code {
     border-color: #0d0d0d; }
 
 /* Cards */
+
+.card-bg {
+  background-color: #003a19;
+  background-size: cover;
+  background-repeat: no-repeat;
+  background-position: center;
+}
 .card {
   border-radius: 0.25rem; }
   .card .card-body {
@@ -16613,10 +16623,16 @@ code {
       right: 0;
       height: 100%; }
   .card.corona-gradient-card {
-    background-image: linear-gradient(to left, #d41459, #911a6c);
+    background-image: linear-gradient(to left, #9f79d4, #5b0acc );
     border-radius: 6px; }
     .card.corona-gradient-card .gradient-corona-img {
       height: 85px; }
+
+      .card.dark-gradient-card {
+        background-image: linear-gradient(to left, #7e7c82, #01050f );
+        border-radius: 6px; }
+        .card.corona-gradient-card .gradient-corona-img {
+          height: 85px; }
       @media (max-width: 576px) {
         .card.corona-gradient-card .gradient-corona-img {
           height: auto;

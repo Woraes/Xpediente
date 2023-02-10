@@ -1,4 +1,4 @@
-
+{% extends 'pages/base/modelo.html' %}
 {% load static %}
 
 
@@ -7,29 +7,60 @@
 <title>Lista Prefeituras </title>
 {% endblock %}
 
-{% block saudacao %}
-{% endblock saudacao %}
+
 
 {%block conteudo%}
-<div class="card ">
-    
-    <div class="table-responsive-lg">
-        <table class="table table-striped">
+<div class="card   w-100 ">
+    <div class="body">
+    <div class="card-body bg-pri">
+    <h3><i class="bi bi-card-list" style="font-size: 3rem; color: #0090e7;"></i> Lista de Prefeituras</h3>
+    </div>
+    <div class="card bg-pri align-content-center text-align-items-center">
+      {% include 'pages/utils/message.html' %}
+    </div> 
+    <div class="table-responsive-lg w-100">
+        <table class="table table-striped w-100 bg-gradient-dark" >
+            
+            
+            <form class="nav-link mt-2 mt-md-0 d-none d-lg-flex search " action="?" method="GET">
+                <tr style="background: #262424;">
+                    <th>
+                    </th>
+                   <th><input type="text" name="nome" id="" value="{{request.GET.nome}}" class="form-control"   autocomplete="off" placeholder="Pesquise Nome"></th> 
+                   {% comment %} <th><input type="text" name="cpf" id="" value="{{request.GET.cpf}}" class="p-1 " autocomplete="off" placeholder="Pesquise CPF"></th>  {% endcomment %}
+                <th>
+                    <button class="btn btn-primary" id="button" type="submit">Buscar</button>
+                    <a class="btn btn-primary" href="{% url 'prefeitura_lista'%}">Limpar</a>
+                    <a class="btn btn-info" href="{% url 'prefeitura_new'%}"><i class="bi bi-plus-circle-dotted"></i>Adicionar Prefeitura</a>
+
+                </th>
+                <th>
+                </th>
+            </tr>
+            </form>
+        
+        </div>
             <tr>
-                <th>Nome </th>
-                
-                <th>Opções</th>
+                <th style="font-size: 1.5rem; color: #0090e7; " ><strong>Nome</strong> </th>
+                <th></th>
+                <th style="font-size: 1.5rem; color: #0090e7; margin-left: 20px;" ><strong>Opções</strong> </th>
             </tr>
             {%for prefeitura in object_list%}
             <tr>
-                <td>{{prefeitura.nome}}</td>
-                
+                <td style="font-size: 1rem; color: #ebe6f2; margin-left: 80px;" >{{prefeitura.nome}}</td>
+                <td></td>
                 <td>
                     <a href="{% url 'prefeitura_update' prefeitura.id %}"class="btn btn-warning", title='Editar'><i class="bi bi-pencil-square" style="font-size: 1rem; color: cornflowerblue;"></i></a>
-                    <a href="{% url 'prefeitura_delete' prefeitura.id %}"class="btn btn-danger", title='Deletar'  ><i class="bi bi-trash"></i></a>                  
-                    <button type="button" class="btn btn-danger" data-toggle="modal" data-target="#deleteModal">
+                    <a href="{% url 'prefeitura_delete' prefeitura.id %}"class="btn btn-danger", title='Deletar'  ><i class="bi bi-trash"></i></a>  
+                    <a href="{% url 'viewpdf'  %}"class="btn btn-bg-success", title='pdf'  ><i class="bi bi-filetype-pdf"></i></a>                  
+                
+                    <button type="button" class="btn btn-danger" data-toggle="modal" data-target="#deleteprefeitura">
                         Delete
                       </button>
+                     <button id="btn_prefeitura_delete_{{ prefeitura.id }}" type="button" class="btn btn-danger btn-sm"
+	data-toggle="modal" data-target="#deleteprefeitura">
+	<span class="oi oi-circle-x" title="Excluir" aria-hidden="true"></span>
+</button> 
                       <a href="{% url 'prefeitura_delete' prefeitura.id %}"class="btn btn-danger", title='Deletar'  ><i class="bi bi-trash"></i></a>                  
 
                 </td>
@@ -41,17 +72,104 @@
 
             {%endfor%}
         </table>
+    </div>
+    <div class="card-body">
+        <ul class="pagination justify-content-center">
+    
+            {% if page_obj.has_previous %}
+    
+                {% if request.GET.nome %}
+                <li class="page-item"><a class="page-link" href="?page=1&nome={{request.GET.nome}}">&laquo; Primeira</a></li>
+                <li class="page-item"><a class="page-link" href="?page={{ page_obj.previous_page_number }}&nome={{request.GET.nome}}">Anterior</a></li>
+                {% else %}
+                <li class="page-item"><a class="page-link" href="?page=1">&laquo; Primeira</a></li>
+                <li class="page-item"><a class="page-link" href="?page={{ page_obj.previous_page_number }}">Anterior</a></li>
+                {% endif %}
+    
+            {% endif %}
         
-
+            <li class="page-item">
+                <span class="page-link">Página {{ page_obj.number }} de {{ page_obj.paginator.num_pages }}.</span>
+            </li>
+        
+            {% if page_obj.has_next %}
+                {% if request.GET.nome %}
+                <li class="page-item"><a class="page-link" href="?page={{ page_obj.next_page_number }}&nome={{request.GET.nome}}">Próxima</a></li>
+                <li class="page-item"><a class="page-link" href="?page={{ page_obj.paginator.num_pages }}&nome={{request.GET.nome}}">Última &raquo;</a></li>
+                {% else %}
+                <li class="page-item"><a class="page-link" href="?page={{ page_obj.next_page_number }}">Próxima</a></li>
+                <li class="page-item"><a class="page-link" href="?page={{ page_obj.paginator.num_pages }}">Última &raquo;</a></li>
+                {% endif %}
+            {% endif %}
+        
+        </ul>
+    </div>    
+{% comment %} {% include 'pages/utils/modal.html' %} {% endcomment %}
 
 </div>  
 
+<div class="card w-100">
+    <div class="modal fade w-100" id="deleteprefeitura" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="exampleModalLabel">Comfirmação de Apagar </h5>
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+              <span aria-hidden="true">&times;</span>
+            </button>
+          </div>
+          <div class="modal-body">
+            Você está a um caminho sem volta Deseja realmete Excluir?
+          </div>
+          <div class="modal-footer">
+            <button id="ok_confirm" type="button" class="btn btn-danger">OK</button>
+            <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+         {% comment %} <a href="{% url 'prefeitura_delete' prefeitura.id %}" class="btn btn-danger">Delete</a>   {% endcomment %}
+          </div>
+        </div>
+      </div>
+    </div>
+    </div>
+     
+     <!-- script do modal -->
+     <script>
+      $(document).ready(function() {
+        $('#deleteprefeitura').on('show.bs.modal', function (event) {
+          var button = $(event.relatedTarget) // Button that triggered the modal
+          var recipient = button.data('whatever') // Extract info from data-* attributes
+          // If necessary, you could initiate an AJAX request here (and then do the updating in a callback).
+          // Update the modal's content. We'll use jQuery here, but you could use a data binding library or other methods instead.
+          var modal = $(this)
+          modal.find('.modal-title').text('Comfirmação de Apagar')
+          modal.find('.modal-body').text('Você está a um caminho sem volta Deseja realmete Excluir?')
+        })
+      });
 
-{% include 'pages/utils/modal.html' %}
+
+     
+    </script>  
+<script>
+  var url = '';
+	
+  $('button[id*="btn_"]').click(function(){
+    url = "/" + $(this).attr('id').split("_")[1];
+  });
+  
+  $('#ok_confirm').click(function(){
+    document.location.href = url;
+  })
+</script>
 
   
   {% endblock %}
 
  
-  
+  {% block conteudo2 %}
+{% endblock conteudo2 %}
+
+
+{% block footer%}
+{% endblock %}
+
+
   

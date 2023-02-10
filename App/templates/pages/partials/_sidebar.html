@@ -1,3 +1,5 @@
+{% load static %}
+
 
 <nav class="sidebar sidebar-offcanvas" id="sidebar">
   <div class="sidebar-brand-wrapper d-none d-lg-flex align-items-center justify-content-center fixed-top">
@@ -9,7 +11,7 @@
       <div class="profile-desc">
         <div class="profile-pic">
           <div class="count-indicator">
-            <img class="img-xs rounded-circle " src="static/images/faces/face15.jpg" alt="">
+            <img class="img-xs rounded-circle " src="{% static 'images/faces/face15.jpg' %}" alt="">
             <span class="count bg-danger"></span>
           </div>
           <div class="profile-name">
@@ -94,7 +96,7 @@
       <div class="collapse" id="basic">
         <ul class="nav flex-column sub-menu">
           <li class="nav-item"> <a class="nav-link" href="{% url 'prefeitura_new'%}">Prefeitura</a></li>
-          <li class="nav-item"> <a class="nav-link" href="">Secretária</a></li>
+          <li class="nav-item"> <a class="nav-link" href="{% url 'secretaria_new'%}">Secretária</a></li>
           <li class="nav-item"> <a class="nav-link" href="">Setor</a></li> 
           <li class="nav-item"> <a class="nav-link" href="">Colaborador</a></li>
           <li class="nav-item"> <a class="nav-link" href="">Documentos</a></li>       
