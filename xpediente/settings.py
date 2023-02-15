@@ -41,14 +41,14 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'crispy_forms',
-    "crispy_bulma",
+    'bootstrap4',
     "crispy_bootstrap5",
     'App',
 ]
 
-CRISPY_ALLOWED_TEMPLATE_PACKS = "bootstrap5"
+CRISPY_ALLOWED_TEMPLATE_PACKS = ""
 
-CRISPY_TEMPLATE_PACK = "bootstrap5"
+CRISPY_TEMPLATE_PACK = "bootstrap4"
 
 #CRISPY_ALLOWED_TEMPLATE_PACKS = ("bulma",)
 

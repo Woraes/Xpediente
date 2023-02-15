@@ -12,38 +12,36 @@
 
 
   
-<div class="card bg-pri w-100 ">
-      
-        
-                  <div class="card bg-primary-gradient-card p-3 m-0 w-100 row-cols-4">
-                    <h3><i class="bi bi-window-plus" style="font-size: 3rem; color: #0090e7;"></i> {{ titulo}}</h3>
+<div class="card bg-gradient-dark w-100 ">
+  <div class="card bg-primary-gradient-card p-3 m-0 w-100">
+    <h3><i class="bi bi-window-plus" style="font-size: 3rem; color: #0090e7;"></i> {{ titulo}}</h3>
 
                   </div>
-                  <div class="card bg-pri align-content-center text-align-items-center">
-                  {% include 'pages/utils/message.html' %}
+                  <div class="card align-content-center text-align-items-center">
+                    {% include 'pages/utils/message.html' %}
                 </div>    
 
-                <div class="card-body  w-100">
+                <div class="card-body   w-100">
                     <h4 class="card-title">{{descri}}</h4>
-                    <form class="form-group row-cols-2" action="" method="post" >
-                      {% csrf_token %}
-                      {{form|crispy}}
-                      
-                    <p class="card-text">Após prencher clique em Criar.</p>
-                    
-                    <button class="btn btn-primary" type="submit">{{botao}}</button>
-                    <a href="{% url 'home' %}" class="btn btn-secondary">Cancelar</a>
-                    <a href="{% url 'prefeitura_lista' %}" class="btn btn-info">Listar Prefeituras</a>
 
-                  </form>
-                  <div class="card">
-                  
-                </div>
-                </div>
-                  
-                
-            </div>  
+                    <form class="form-row" action="" method="post">
+                      {% csrf_token %}
+                    
+                      <div class="form-group col-md-4">
+                        {{ form.nome|as_crispy_field }}
+                      </div>
+
+                      {% comment %} <div class="form-group col-md-4">
+            {{ form.criadopor|as_crispy_field }}
+          </div>  {% endcomment %}
+          <div class="form-group col-md-12">
+            <p class="card-text">Após preencher, clique em salvar.</p>
+            <button class="btn btn-primary" type="submit">{{ botao }}</button>
+            <a href="{% url 'home' %}" class="btn btn-secondary">Cancelar</a>
+            <a href="{% url 'prefeitura_lista' %}" class="btn btn-info">Listar Prefeituras</a>
           </div>
+        </form>
+                 
          
         </div> 
        

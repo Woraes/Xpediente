@@ -109,7 +109,7 @@
                       </div>
                       <div class="col-3">
                         <div class="icon icon-box-success ">
-                          <span class="mdi mdi-arrow-top-right icon-item"></span>
+                          <span class="bi bi-buildings"></span>
                         </div>
                       </div>
                     </div>
@@ -130,7 +130,7 @@
                       </div>
                       <div class="col-3">
                         <div class="icon icon-box-success">
-                          <span class="mdi mdi-arrow-top-right icon-item"></span>
+                          <span class="bi bi-building-fill"></span>
                         </div>
                       </div>
                     </div>
@@ -144,17 +144,16 @@
                     <div class="row">
                       <div class="col-9">
                         <div class="d-flex align-items-center align-self-start">
-                          <h3 class="mb-0">$12.34</h3>
-                          <p class="text-danger ml-2 mb-0 font-weight-medium">-2.4%</p>
+                          <h3 class="mb-0">Setores Cadastrados Total: {{num_setor}}</h3>
                         </div>
                       </div>
                       <div class="col-3">
-                        <div class="icon icon-box-danger">
-                          <span class="mdi mdi-arrow-bottom-left icon-item"></span>
+                        <div class="icon icon-box-success">
+                          <span class="bi bi-house-door"></span>
                         </div>
                       </div>
                     </div>
-                    <h6 class="text-muted font-weight-normal">Daily Income</h6>
+                    <h6 class="text-muted font-weight-normal"></h6>
                   </div>
                 </div>
               </div>
@@ -164,17 +163,17 @@
                     <div class="row">
                       <div class="col-9">
                         <div class="d-flex align-items-center align-self-start">
-                          <h3 class="mb-0">$31.53</h3>
-                          <p class="text-success ml-2 mb-0 font-weight-medium">+3.5%</p>
+                          <h3 class="mb-0">Colaboradores Cadastrados Total: {{ num_colaborador }}</h3>
+                          <p class="text-success ml-2 mb-0 font-weight-medium"></p>
                         </div>
                       </div>
                       <div class="col-3">
                         <div class="icon icon-box-success ">
-                          <span class="mdi mdi-arrow-top-right icon-item"></span>
+                          <span class="bi bi-person-lines-fill"></span>
                         </div>
                       </div>
                     </div>
-                    <h6 class="text-muted font-weight-normal">Expense current</h6>
+                    <h6 class="text-muted font-weight-normal"></h6>
                   </div>
                 </div>
               </div>
@@ -486,7 +485,7 @@
                               </div>
                             </td>
                             <td>
-                              <img src="static/images/faces/face4.jpg" alt="image" />
+                              <img src="{%static 'images/faces/face4.jpg' %}" alt="image" />
                               <span class="pl-2">Sallie Reyes</span>
                             </td>
                             <td> 02312 </td>
@@ -739,6 +738,10 @@
           <!-- content-wrapper ends -->
           {% endblock conteudo %}
 
+          {% block modal %}
+          {% include 'pages/utils/modal.html' %} 
+          {% endblock modal %}
+
 
           {% block conteudo2 %}
           
@@ -771,6 +774,7 @@
     <script src="{% static 'vendors/jvectormap/jquery-jvectormap.min.js'%}"></script>
     <script src="{% static 'vendors/jvectormap/jquery-jvectormap-world-mill-en.js'%}"></script>
     <script src="{% static 'vendors/owl-carousel-2/owl.carousel.min.js'%}"></script>
+    
     <!-- End plugin js for this page -->
     <!-- inject:js -->
     <script src="{% static 'js/off-canvas.js'%}"></script>
@@ -778,10 +782,100 @@
     <script src="{% static 'js/misc.js'%}"></script>
     <script src="{% static 'js/settings.js'%}"></script>
     <script src="{% static 'js/todolist.js'%}"></script>
+    
     <!-- endinject -->
     <!-- Custom js for this page -->
     <script src="{% static 'js/dashboard.js'%}"></script>
     <!-- End custom js for this page -->
+
+      <!-- Adicionando Javascript -->
+      <script>
+    
+        function limpa_formulário_cep() {
+                //Limpa valores do formulário de cep.
+                document.getElementById('rua').value=("");
+                document.getElementById('bairro').value=("");
+                document.getElementById('cidade').value=("");
+                document.getElementById('uf').value=("");
+                document.getElementById('ibge').value=("");
+        }
+    
+        function meu_callback(conteudo) {
+            if (!("erro" in conteudo)) {
+                //Atualiza os campos com os valores.
+                document.getElementById('rua').value=(conteudo.logradouro);
+                document.getElementById('bairro').value=(conteudo.bairro);
+                document.getElementById('cidade').value=(conteudo.localidade);
+                document.getElementById('uf').value=(conteudo.uf);
+                document.getElementById('ibge').value=(conteudo.ibge);
+            } //end if.
+            else {
+                //CEP não Encontrado.
+                limpa_formulário_cep();
+                alert("CEP não encontrado.");
+            }
+        }
+            
+        function pesquisacep(valor) {
+    
+            //Nova variável "cep" somente com dígitos.
+            var cep = valor.replace(/\D/g, '');
+    
+            //Verifica se campo cep possui valor informado.
+            if (cep != "") {
+    
+                //Expressão regular para validar o CEP.
+                var validacep = /^[0-9]{8}$/;
+    
+                //Valida o formato do CEP.
+                if(validacep.test(cep)) {
+    
+                    //Preenche os campos com "..." enquanto consulta webservice.
+                    document.getElementById('rua').value="...";
+                    document.getElementById('bairro').value="...";
+                    document.getElementById('cidade').value="...";
+                    document.getElementById('uf').value="...";
+                    document.getElementById('ibge').value="...";
+    
+                    //Cria um elemento javascript.
+                    var script = document.createElement('script');
+    
+                    //Sincroniza com o callback.
+                    script.src = 'https://viacep.com.br/ws/'+ cep + '/json/?callback=meu_callback';
+    
+                    //Insere script no documento e carrega o conteúdo.
+                    document.body.appendChild(script);
+    
+                } //end if.
+                else {
+                    //cep é inválido.
+                    limpa_formulário_cep();
+                    alert("Formato de CEP inválido.");
+                }
+            } //end if.
+            else {
+                //cep sem valor, limpa formulário.
+                limpa_formulário_cep();
+            }
+        };
+    
+        </script>
+           <!-- inserir dados no form-->
+        <script>
+          {% comment %} window.onload = function() {
+            // Obtém a data atual
+            var dataAtual = new Date();
+        
+            // Obtém o ano atual
+            var anoAtual = dataAtual.getFullYear();
+        
+            // Insere o ano no campo correspondente
+            var campoAno = document.getElementById("id_ano");
+            if (campoAno) {
+              campoAno.value = anoAtual;
+            }
+          }; {% endcomment %}
+        </script>
 
 
     

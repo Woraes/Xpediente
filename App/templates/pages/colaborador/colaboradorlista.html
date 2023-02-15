@@ -1,0 +1,134 @@
+{% extends 'pages/base/modelo.html' %}
+{% load static %}
+
+
+
+{%block titulo%} 
+<title>Lista Colaboradores </title>
+{% endblock %}
+
+
+
+{%block conteudo%}
+<div class="card ">
+    <h4 class="card-title"><i class="bi bi-list-stars" style="font-size: 2rem; color: #0090e7;"></i> Lista de Colaboradores</h4>
+    <div class="card bg-pri align-content-center text-align-items-center">
+        {% include 'pages/utils/message.html' %}
+      </div>
+    
+
+
+      
+    <div class="table-responsive-lg w-100">
+        <table class="table table-striped w-90 bg-gradient-dark" >
+            <tr class="w-100">
+            <form class="nav-link mt-2 mt-md-0 d-none d-lg-flex w-100 search " action="?" method="GET">
+                <tr style="background: #262424;">
+                    
+                   <th><input type="text" name="nome" id="" value="{{request.GET.nome}}" class="form-control"   autocomplete="on" placeholder="Pesquise Nome"></th> 
+                <th>
+                    <button class="btn btn-primary" id="button" type="submit">Buscar</button>
+                    <a class="btn btn-primary" href="{% url 'colaborador_lista'%}">Limpar</a>
+                    <a class="btn btn-info" href="{% url 'colaborador_new'%}"><i class="bi bi-plus-circle-dotted"></i>Adicionar Colaborador</a>
+                </th>
+                <th >
+                    <form class="form-check form-switch " action="?" method="GET">
+                        <div class="form-check form-switch">
+                        <label  for="ativo">ATIVO:</label>
+                        <input  type="checkbox" name="status" id="ativo" value="ativo">
+                        <label  for="inativo">INATIVO:</label>
+                        <input  type="checkbox" name="status" id="inativo" value="inativo">
+                        <button class="btn btn-primary" id="button" type="submit">Filtrar</button>
+                        </div>
+                    </form>
+                </th>
+            </tr>
+            </form>
+        </tr>
+
+            
+
+            <tr>
+                <th style="font-size: 1rem; color: #0090e7;" ><strong>Nome</strong> </th>
+                <th style="font-size: 1rem; color: #0090e7;" ><strong>CPF</strong> </th>
+                <th style="font-size: 1rem; color: #0090e7;" ><strong>Matrícula</strong> </th> 
+                <th style="font-size: 1rem; color: #0090e7;" ><strong>Status</strong> </th>
+                <th style="font-size: 1rem; color: #0090e7;" ><strong>Opções</strong> </th>
+            </tr>
+  
+            
+            {%for colaborador in object_list %}
+                    
+            <tr style="margin: 20px;">
+                <td style="font-size: 1rem; color: #ebe6f2; margin-left: 80px;">{{colaborador.nome}}</td>
+                <td style="font-size: 1rem; color: #ebe6f2; margin-left: 80px;">{{colaborador.cpf}}</td>
+                <td style="font-size: 1rem; color: #ebe6f2; ">{{colaborador.matricula}}</td>
+                <td style="font-size: 1rem; color: #ebe6f2; margin-left: 80px;">{{colaborador.status}}</td>
+
+                <td>
+                    <a href="{% url 'colaborador_update' colaborador.id %}"class="btn btn-warning", title='Editar'><i class="bi bi-pencil-square" style="font-size: 1rem; color: cornflowerblue;"></i></a> 
+                    <a href="{% url 'colaborador_delete' colaborador.id %}"class="btn btn-danger", title='Deletar'  ><i class="bi bi-trash"></i></a>
+                    <a href=""class="btn btn-bg-success", title='pdf'  ><i class="bi bi-filetype-pdf"></i></a>
+                
+                    <button type="button" class="btn btn-danger" data-toggle="modal" data-target="#deleteModal">
+                        Delete
+                      </button>
+
+                </td>
+              
+                 </tr>
+                {%empty%}
+                <tr>
+                <td>Nenhum Setor Registrado</td>
+                </tr>   
+                
+            
+            {%endfor%} 
+        </table>
+        <ul class="pagination justify-content-center">
+    
+            {% if page_obj.has_previous %}
+    
+                {% if request.GET.nome %}
+                <li class="page-item"><a class="page-link" href="?page=1&nome={{request.GET.nome}}">&laquo; Primeira</a></li>
+                <li class="page-item"><a class="page-link" href="?page={{ page_obj.previous_page_number }}&nome={{request.GET.nome}}">Anterior</a></li>
+                {% else %}
+                <li class="page-item"><a class="page-link" href="?page=1">&laquo; Primeira</a></li>
+                <li class="page-item"><a class="page-link" href="?page={{ page_obj.previous_page_number }}">Anterior</a></li>
+                {% endif %}
+    
+            {% endif %}
+        
+            <li class="page-item">
+                <span class="page-link">Página {{ page_obj.number }} de {{ page_obj.paginator.num_pages }}.</span>
+            </li>
+        
+            {% if page_obj.has_next %}
+                {% if request.GET.nome %}
+                <li class="page-item"><a class="page-link" href="?page={{ page_obj.next_page_number }}&nome={{request.GET.nome}}">Próxima</a></li>
+                <li class="page-item"><a class="page-link" href="?page={{ page_obj.paginator.num_pages }}&nome={{request.GET.nome}}">Última &raquo;</a></li>
+                {% else %}
+                <li class="page-item"><a class="page-link" href="?page={{ page_obj.next_page_number }}">Próxima</a></li>
+                <li class="page-item"><a class="page-link" href="?page={{ page_obj.paginator.num_pages }}">Última &raquo;</a></li>
+                {% endif %}
+            {% endif %}
+        
+        </ul>
+
+
+</div>  
+
+
+
+
+  
+  {% endblock conteudo%}
+
+ 
+  {% block conteudo2 %}
+  {% endblock conteudo2 %}
+  
+  
+  {% block footer%}
+  {% endblock %}
+  

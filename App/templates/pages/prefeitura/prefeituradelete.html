@@ -19,21 +19,54 @@
 
 
 {%block conteudo%}
-<div class="card align-content-lg-center">
-<h1>Deletar o Registro Prefeitura  ?
-<h3>Nome: ( {{ prefeitura.nome }} ) </h3>
+<div class="card col-sm-12 grid-col--2 ">
+    <div class="card-body bg-gradient-dark">
+      <div class="card-title bg-gray-dark">
+      <h1>Deletar o Registro Prefeitura ?</h1>
+      </div> 
+    <h3>Nome da Prefeitura: ( {{ prefeitura.nome }} ) </h3>
+    <h3>Criador:  {{ prefeitura.criadopor }}  </h3>
+    </div>
+    <div class="card bg-gradient-danger align-content-center text-align-items-center">
+      {% include 'pages/utils/message.html' %}
+    </div>
 
-<h6>Deseja confirmar para deletar ?</h6>
 
-<form method='post' enctype='multipart/form-data'>
-    {% csrf_token %}
+
+<div class="card  bg-delete">
+  <div class="card-body">
+        <div class="row">
+          <div class="col-9">
+            <div class="d-flex align-items-center align-self-start">
+              <h3 class="mb-0" style="font-size 54px background: #000;">Status da Prefeitura :  <h2 class="m-2" style="color: #0ca62d;"></h2></h3>
+              <p class="text-success ml-2 mb-0 font-weight-medium"></p>
+            </div>
+          </div>
+          <div class="col-3">
+            <div class="icon icon-box-success w-50 h-100">
+              <span class="mdi mdi-arrow-top-right icon-item"></span>
+            </div>
+          </div>
+        </div> 
+        <h6 class="">Deseja <span class="m-2" style="color: green;">confirmar</span> para <span class="m-2" style="color: red;">DELETAR ?</span> </h6>
+      <form method='post' enctype='multipart/form-data'>
+        {% csrf_token %}
+        <button type="submit" class="btn btn-outline-success">Confirmar</button>
+        <a href="{%url 'prefeitura_lista'%}" class="btn btn-outline-light">Voltar</a></button> 
+
+    </form>
+      </div>
+    </div>
+  
     
+     
 
 
-    <button type="submit" class="btn btn-warning">Confirmar</button> 
-    <a href="{%url 'prefeitura_new'%}" class="btn btn-dark">Cancelar</a></button>  
-</form>
-</div>
+<div class="card">
+<h6></h6>
+
+
+
 {% endblock %}   
     
 
@@ -41,6 +74,8 @@
 
 {% endblock conteudo2 %}
 
+</div>
+</div>
 
-{% block footer %}
-{% endblock footer %}
+    
+

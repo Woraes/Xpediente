@@ -1,0 +1,18 @@
+{% load crispy_forms_field %}
+
+{% block label %}
+    <div class="col-sm-{{ label_class }}">
+        <label for="{{ field.id_for_label }}" class="control-label">
+            {% crispy_field_label %}
+        </label>
+    </div>
+{% endblock %}
+
+{% block field %}
+    <div class="col-sm-{{ field_class }}">
+        {% crispy_field %}
+        {% if field.help_text %}
+            <span class="help-block">{{ field.help_text|safe }}</span>
+        {% endif %}
+    </div>
+{% endblock %}

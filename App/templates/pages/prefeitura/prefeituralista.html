@@ -45,7 +45,7 @@
                 <th></th>
                 <th style="font-size: 1.5rem; color: #0090e7; margin-left: 20px;" ><strong>Opções</strong> </th>
             </tr>
-            {%for prefeitura in object_list%}
+            {%for prefeitura in prefeituras %}
             <tr>
                 <td style="font-size: 1rem; color: #ebe6f2; margin-left: 80px;" >{{prefeitura.nome}}</td>
                 <td></td>
@@ -57,11 +57,7 @@
                     <button type="button" class="btn btn-danger" data-toggle="modal" data-target="#deleteprefeitura">
                         Delete
                       </button>
-                     <button id="btn_prefeitura_delete_{{ prefeitura.id }}" type="button" class="btn btn-danger btn-sm"
-	data-toggle="modal" data-target="#deleteprefeitura">
-	<span class="oi oi-circle-x" title="Excluir" aria-hidden="true"></span>
-</button> 
-                      <a href="{% url 'prefeitura_delete' prefeitura.id %}"class="btn btn-danger", title='Deletar'  ><i class="bi bi-trash"></i></a>                  
+                     
 
                 </td>
             </tr>
@@ -104,9 +100,9 @@
         
         </ul>
     </div>    
-{% comment %} {% include 'pages/utils/modal.html' %} {% endcomment %}
 
-</div>  
+
+{% comment %} </div>  
 
 <div class="card w-100">
     <div class="modal fade w-100" id="deleteprefeitura" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
@@ -124,7 +120,7 @@
           <div class="modal-footer">
             <button id="ok_confirm" type="button" class="btn btn-danger">OK</button>
             <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
-         {% comment %} <a href="{% url 'prefeitura_delete' prefeitura.id %}" class="btn btn-danger">Delete</a>   {% endcomment %}
+        <a href="{% url 'prefeitura_delete' prefeitura.id %}" class="btn btn-danger">Delete</a>   
           </div>
         </div>
       </div>
@@ -143,7 +139,7 @@
           modal.find('.modal-title').text('Comfirmação de Apagar')
           modal.find('.modal-body').text('Você está a um caminho sem volta Deseja realmete Excluir?')
         })
-      });
+      }); 
 
 
      
@@ -158,13 +154,13 @@
   $('#ok_confirm').click(function(){
     document.location.href = url;
   })
-</script>
+</script>{% endcomment %}
 
   
   {% endblock %}
 
  
-  {% block conteudo2 %}
+{% block conteudo2 %}
 {% endblock conteudo2 %}
 
 

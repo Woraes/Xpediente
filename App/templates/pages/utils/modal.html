@@ -26,7 +26,7 @@
 </div>
  
 <!-- script do modal -->
-{% comment %} <script>
+<script>
   $(document).ready(function() {
     $('#deleteModal').on('show.bs.modal', function (event) {
       var button = $(event.relatedTarget) // Button that triggered the modal
@@ -38,5 +38,5 @@
       modal.find('.modal-body').text('Você está a um caminho sem volta Deseja realmete Excluir?')
     })
   });
-</script>  {% endcomment %}
+</script>  
   

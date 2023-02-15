@@ -12809,9 +12809,11 @@ a.close.disabled {
 .bg-primary {
   background-color: #0090e7 !important; }
 
-  .bg-pri {
+.bg-pri {
     background-image: url('/static/images/samples/1280x768/14.jpg') !important; }
 
+.bg-delete {
+      background-image: url('/static/images/samples/1280x768/16.jpg') !important; }
 a.bg-primary:hover, a.bg-primary:focus,
 button.bg-primary:hover,
 button.bg-primary:focus {

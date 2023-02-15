@@ -5,7 +5,7 @@ from django.http import FileResponse, HttpResponse, HttpResponseRedirect
 from django.shortcuts import get_object_or_404, redirect, render
 from django.views import View
 
-from django.views.generic import TemplateView, CreateView, UpdateView, DeleteView
+from django.views.generic import TemplateView, CreateView, UpdateView, DeleteView,FormView
 from django.views.generic.list import ListView
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
@@ -20,21 +20,24 @@ from xhtml2pdf import pisa
 from reportlab.pdfgen import canvas
 
 
-
 #validação de erros
 from django.core.exceptions import ValidationError
-from App.gerapdf import GeraPDF
+from App.forms import FormSecretaria
 
+from App.gerapdf import GeraPDF
 from django import forms
 
 #models
 from .models import Prefeitura
 from .models import Secretaria
+from .models import Setor
+from .models import Colaborador
+from .models import Documento
 
-# Create your views here.
+#forms
 
 
-
+#Home page
 class Home(LoginRequiredMixin, TemplateView):
     login_url = reverse_lazy('login')
     template_name = '/Xpediente/App/templates/pages/index.html' 
@@ -42,6 +45,8 @@ class Home(LoginRequiredMixin, TemplateView):
         context = super().get_context_data(**kwargs)
         context['num_prefeitura'] = Prefeitura.objects.count()
         context['num_secretaria'] = Secretaria.objects.count()
+        context['num_setor'] = Setor.objects.count()
+        context['num_colaborador'] = Colaborador.objects.count()
         data = datetime.date.today()
         hora = (datetime.datetime.now())
         horaint = int(hora.strftime('%H'))
@@ -58,30 +63,36 @@ class Home(LoginRequiredMixin, TemplateView):
         context["data"] = data    
         return context
 
+#Classes Prefeitura
 class PrefeituraNew(GroupRequiredMixin, LoginRequiredMixin, CreateView):
     login_url=reverse_lazy('login')
     group_required = u'ADM'
     model=Prefeitura
+    #form = FormPrefeitura
     fields = ['nome',
               ]
     
+    
     template_name = 'pages/prefeitura/prefeituraform.html'
     context_object_name = 'prefeituras'
-    success_url =  reverse_lazy ('prefeitura_new')
+    success_url =  reverse_lazy ('prefeitura_lista')
     
     
-     
+    # def FormPrefeitura(request):
+    #     form = FormPrefeitura()
+    #     contexto = {'form': form}
+    #     return render(request, 'pages/prefeitura/prefeituraform.html', contexto)
     
     def form_valid(self, form):
         #definir um valor de usuario oculto para saber qual foi o user que fez a postagem
         form.instance.criadopor = self.request.user
         
         #validação de existente mais messagem flash
-        nome = form.cleaned_data.get('nome')
-        existing_prefeitura = Prefeitura.objects.filter(nome=nome).exists()
-        if existing_prefeitura:
-            messages.info(self.request, "Existe uma Prefeitura Registrada com esse nome. Por favor escolha outro nome !!! Obrigado")
-            return redirect("prefeitura_new")
+        # nome = form.cleaned_data.get('nome')
+        # existing_prefeitura = Prefeitura.objects.filter(nome=nome).exists()
+        # if existing_prefeitura:
+        #     messages.info(self.request, "Existe uma Prefeitura Registrada com esse nome. Por favor escolha outro nome !!! Obrigado")
+        #     return redirect("prefeitura_new")
         response = super().form_valid(form)
         messages.success(self.request, "Prefeitura adicionada com sucesso.")
         return response
@@ -97,12 +108,11 @@ class PrefeituraNew(GroupRequiredMixin, LoginRequiredMixin, CreateView):
         context['descri'] = 'Criação de Prefeitura.'
         
         return context
-    
 
 class PrefeituraLista(LoginRequiredMixin,ListView):
     login_url = reverse_lazy('login')
     model = Prefeitura
-    context_object_name = 'prefeituralist'
+    context_object_name = 'prefeituras'
     template_name='pages/prefeitura/prefeituralista.html'
     
     #pegando as informaçoes obtidas na class Home e passando para essa view
@@ -111,7 +121,7 @@ class PrefeituraLista(LoginRequiredMixin,ListView):
         context.update(Home.as_view()(self.request).context_data)
         return context
     
-   #modo de pesquisar na lista por um colaborador
+   #modo de pesquisar na lista por um objeto
     paginate_by = 6
     def get_queryset(self):
         txt_nome = self.request.GET.get('nome')
@@ -120,9 +130,6 @@ class PrefeituraLista(LoginRequiredMixin,ListView):
         else:
             prefeitura = Prefeitura.objects.all()
         return prefeitura 
-    
-   
-     
         
 def prefeitura_view(request):
     # Crie o objeto HttpResponse com o cabeçalho de PDF apropriado.
@@ -161,10 +168,16 @@ def prefeitura_view(request):
         p.save()
         buffer.seek(0)
         return FileResponse(buffer, as_attachment=True, filename='file.pdf')
-    
-    
 
-    
+def requisicao_api(request):
+        if request.method == 'POST':
+            cep = request.POST['cep']
+            response = requests.get(f'https://viacep.com.br/ws/{cep}/json/')
+            if response.status_code == 200:
+                dados = response.json()
+                return render(request, 'cep.html', {"dados": dados})
+
+        return redirect('secretaria_new')
     
 class PrefeituraUpdate(GroupRequiredMixin,LoginRequiredMixin, UpdateView,ListView):
     login_url = reverse_lazy('login')
@@ -173,7 +186,7 @@ class PrefeituraUpdate(GroupRequiredMixin,LoginRequiredMixin, UpdateView,ListVie
     fields = ['nome',
               ]
     template_name = 'pages/prefeitura/prefeituraform.html'
-    success_url =  reverse_lazy ('prefeitura_new')
+    success_url =  reverse_lazy ('prefeitura_lista')
     
     #  #messagem flash de confirmaçã de edição
     def form_valid(self, form):
@@ -185,11 +198,11 @@ class PrefeituraUpdate(GroupRequiredMixin,LoginRequiredMixin, UpdateView,ListVie
     #     return response 
     
     #validação de existente mais messagem flash
-        nome = form.cleaned_data.get('nome')
-        existing_prefeitura = Prefeitura.objects.filter(nome=nome).exists()
-        if existing_prefeitura:
-            messages.info(self.request, "Existe uma Prefeitura Registrada com esse nome. Por favor escolha outro nome !!! Obrigado")
-            return redirect("prefeitura_lista")
+        # nome = form.cleaned_data.get('nome')
+        # existing_prefeitura = Prefeitura.objects.filter(nome=nome).exists()
+        # if existing_prefeitura:
+        #     messages.info(self.request, "Existe uma Prefeitura Registrada com esse nome. Por favor escolha outro nome !!! Obrigado")
+        #     return redirect("prefeitura_lista")
         response = super().form_valid(form)
         messages.success(self.request, "Prefeitura Editada com sucesso.")
         return response
@@ -253,35 +266,44 @@ class GerarPdfView(GroupRequiredMixin,LoginRequiredMixin, View, GeraPDF):
        return HttpResponseRedirect(reverse_lazy('prefeitura_new'))
 
 
-
 #Classes secretaria
-class SecretariaNew(GroupRequiredMixin, LoginRequiredMixin, CreateView,ListView):
+class SecretariaNew(GroupRequiredMixin, LoginRequiredMixin, CreateView,FormView):
     login_url=reverse_lazy('login')
     group_required = u'ADM'
     model=Secretaria
-    fields = ['nome',
-              'prefeitura',
-              'sigla',
-              'telefone',
-              'status',
-              'cep',
-              'logradouro',
-              'complemento',
-              'bairro',
-              'localidade',
-              'uf',
-              ]
+    fields = [
+            'nome',
+            'prefeitura',
+            'sigla',
+            'telefone',
+            'status',
+            'cep',
+            'logradouro',
+            'complemento',
+            'bairro',
+            'localidade',
+            'uf',
+             
+        ]
     
+    # form_class = FormSecretaria 
     template_name = 'pages/secretaria/secretariaform.html'
     context_object_name = 'secretarias'
-    success_url =  reverse_lazy ('secretaria_new')
+    success_url =  reverse_lazy ('secretaria_lista')
+    
+    
+    
+    
+    
+    
     
     #Functions de Validar
     def form_valid(self, form):
         #instancia para pegar o criador
         form.instance.criadopor = self.request.user
+         
         
-         #validação de existente mais messagem flash
+    #      #validação de existente mais messagem flash
         nome = form.cleaned_data.get('nome')
         sigla = form.cleaned_data.get('sigla')
 
@@ -301,7 +323,7 @@ class SecretariaNew(GroupRequiredMixin, LoginRequiredMixin, CreateView,ListView)
             messages.success(self.request, "Secretaria adicionada com sucesso.")
             return response
         
-        
+          
         
         # #Flash Menssage
         # response = super().form_valid(form)
@@ -314,8 +336,8 @@ class SecretariaNew(GroupRequiredMixin, LoginRequiredMixin, CreateView,ListView)
     def get_context_data(self, *args, **kwargs):
         context = super().get_context_data(*args, **kwargs)
         #pegando o conteudo desse template
-        context.update(Home.as_view()(self.request).context_data)
-        
+        #context.update(Home.as_view()(self.request).context_data)
+        context['prefeituras'] = Prefeitura.objects.all()
         
         #Alterando o nome dos botoes no cadastro pois usamos o mesmo form
         context['titulo'] = 'Criando Secretária'
@@ -324,24 +346,43 @@ class SecretariaNew(GroupRequiredMixin, LoginRequiredMixin, CreateView,ListView)
         
         return context
     
-            
 class SecretariaLista(LoginRequiredMixin,ListView):
     login_url = reverse_lazy('login')
     model = Secretaria
+    context_object_name = 'secretarias'
     template_name='pages/secretaria/secretarialista.html'
     
+  
     #pegando as informaçoes obtidas na class Home e passando para essa view
     def get_context_data(self, *args, **kwargs):
         context = super().get_context_data(*args, **kwargs)
         context.update(Home.as_view()(self.request).context_data)
         return context
     
-    #modo de pesquisar na lista por um colaborador
+    # def get_queryset(self):
+    #     status = self.request.GET.get('status') or self.request.GET.get('INATIVO')
+    #     if status:
+    #         if status == 'INATIVO':
+    #             secretarias = Secretaria.objects.filter(status='inativo')
+    #         else:
+    #             secretarias = Secretaria.objects.filter(status='ativo')
+    #     else:
+    #         secretarias = Secretaria.objects.all()
+    #     return secretarias
+
+    
+    
+    #modo de pesquisar na lista por um objeto e dizer se esta ativo ou não e paginação
     paginate_by = 6
     def get_queryset(self):
         txt_nome = self.request.GET.get('nome')
+        status = self.request.GET.get('status')
         if txt_nome:
-            secretaria = Secretaria.objects.filter(nome__icontains=txt_nome)
+             secretaria = Secretaria.objects.filter(nome__icontains=txt_nome)
+             return secretaria 
+        if status:  
+            secretaria = Secretaria.objects.filter(status=status)
+            return secretaria   
         else:
             secretaria = Secretaria.objects.all()
         return secretaria      
@@ -363,7 +404,7 @@ class SecretariaUpdate(GroupRequiredMixin,LoginRequiredMixin, UpdateView,ListVie
               'uf',
               ]
     template_name = 'pages/secretaria/secretariaform.html'
-    success_url =  reverse_lazy ('secretaria_new')
+    success_url =  reverse_lazy ('secretaria_lista')
     
     
     def form_valid(self, form):
@@ -383,5 +424,383 @@ class SecretariaUpdate(GroupRequiredMixin,LoginRequiredMixin, UpdateView,ListVie
         context['titulo'] = 'Editar Secretária'
         context['botao'] = 'Editar'
         context['descri'] = 'Edição de Dados.'
+        
+        return context    
+    
+class SecretariaDelete(GroupRequiredMixin, LoginRequiredMixin, DeleteView):
+    login_url = reverse_lazy('login')
+    group_required = u'Administrador'
+    model = Secretaria
+    
+    template_name = 'pages/secretaria/secretariadelete.html'
+    
+    success_url = reverse_lazy('secretaria_lista')    
+    
+     #messagem flash de confirmação de exclusão
+    def form_valid(self, form):
+        response = super().form_valid(form)
+        messages.warning(self.request, 'Secretária Excluida com sucesso.')
+        if response.status_code == 200:
+            messages.error(self.request, 'erro')
+        return response    
+    
+    #se existir uma prefeitura não apagar a secretaria
+    # def form_valid(self, form):
+    # # Check if a prefecture is registered
+    #     if Prefeitura.objects.exists():
+    #         messages.error(self.request, 'Não é possível excluir a secretária enquanto existir uma prefeitura registrada.')
+    #         return super().form_invalid(form)
+
+    #     response = super().form_valid(form)
+    #     messages.warning(self.request, 'Secretária Excluida com sucesso.')
+    #     return response
+
+#Classes setor
+class SetorNew(GroupRequiredMixin, LoginRequiredMixin, CreateView,ListView):
+    login_url=reverse_lazy('login')
+    group_required = u'ADM'
+    model=Setor
+    fields = ['nome',
+              'prefeitura',
+              'secretaria',
+              'telefone',
+              'status',
+              'cep',
+              'logradouro',
+              'complemento',
+              'bairro',
+              'localidade',
+              'uf',
+              ]
+    
+    template_name = 'pages/setor/setorform.html'
+    context_object_name = 'setores'
+    success_url =  reverse_lazy ('setor_lista')    
+    
+    def form_valid(self, form):
+        #definir um valor de usuario oculto para saber qual foi o user que fez a postagem
+        form.instance.criadopor = self.request.user
+        
+        #validação de existente mais messagem flash
+        nome = form.cleaned_data.get('nome')
+        existing_prefeitura = Setor.objects.filter(nome=nome).exists()
+        if existing_prefeitura:
+            messages.info(self.request, "Existe um Setor Registrado com esse nome. Por favor escolha outro nome !!! Obrigado")
+            return redirect("setor_new")
+        response = super().form_valid(form)
+        messages.success(self.request, "Setor adicionado com sucesso.")
+        return response
+    
+     #alterando esses campos na view
+    def get_context_data(self, *args, **kwargs):
+        context = super().get_context_data(*args, **kwargs)
+        
+        context.update(Home.as_view()(self.request).context_data)
+        
+        context['titulo'] = 'Criando Setor'
+        context['botao'] = 'Criar'
+        context['descri'] = 'Criação de setor.'
+        
+        return context
+    
+class SetorLista(LoginRequiredMixin,ListView):
+    login_url = reverse_lazy('login')
+    model = Setor
+    context_object_name = 'setores'
+    template_name='pages/setor/setorlista.html'
+    
+    #pegando as informaçoes obtidas na class Home e passando para essa view
+    def get_context_data(self, *args, **kwargs):
+        context = super().get_context_data(*args, **kwargs)
+        context.update(Home.as_view()(self.request).context_data)
+        return context    
+    
+    #modo de pesquisar na lista por um objeto e dizer se esta ativo ou não
+    paginate_by = 6
+    def get_queryset(self):
+        txt_nome = self.request.GET.get('nome')
+        status = self.request.GET.get('status')
+        if txt_nome:
+             setor = Setor.objects.filter(nome__icontains=txt_nome)
+             return setor 
+        if status:  
+            setor = Setor.objects.filter(status=status)
+            return setor   
+        else:
+            setor = Setor.objects.all()
+        return setor    
+    
+class SetorUpdate(GroupRequiredMixin, LoginRequiredMixin, UpdateView):
+    login_url = reverse_lazy('login')
+    group_required = u'ADM','Gestor'
+    model = Setor
+    fields = fields = ['nome',
+              'prefeitura',
+              'secretaria',
+              'telefone',
+              'status',
+              'cep',
+              'logradouro',
+              'complemento',
+              'bairro',
+              'localidade',
+              'uf',
+              ]
+    template_name = 'pages/setor/setorform.html'
+    success_url =  reverse_lazy ('setor_lista')   
+    
+    def form_valid(self, form):
+        
+        form.instance.criadopor = self.request.user
+        
+        
+        response = super().form_valid(form)
+        messages.success(self.request, 'Setor Editado com sucesso.')
+        if response.status_code == 404:
+            messages.error(self.request, 'erro')
+        return response 
+    
+    def get_context_data(self, *args, **kwargs):
+        context = super().get_context_data(*args, **kwargs)
+        
+        context['titulo'] = 'Editar Setor'
+        context['botao'] = 'Editar'
+        context['descri'] = 'Edição de Dados.'
+        
+        return context     
+    
+class SetorDelete(GroupRequiredMixin, LoginRequiredMixin, DeleteView):
+    login_url = reverse_lazy('login')
+    group_required = u'Administrador'
+    model = Setor
+    template_name = 'pages/setor/setordelete.html'
+    success_url = reverse_lazy('setor_lista')        
+    
+     #se existir uma prefeitura não apagar a secretaria
+    def form_valid(self, form):
+    # Check if a prefecture is registered
+        # if Secretaria.objects.exists():
+        #     messages.error(self.request, 'Não é possível excluir o Setor, uma Secretária está vinculada.')
+        #     return super().form_invalid(form)
+
+        response = super().form_valid(form)
+        messages.warning(self.request, 'Setor Excluido com sucesso.')
+        return response  
+    
+#Classe colaborador    
+class ColaboradorNew(GroupRequiredMixin, LoginRequiredMixin, CreateView):    
+    login_url = reverse_lazy('login')
+    group_required = u'ADM','Gestor'
+    model = Colaborador
+    fields = ['nome',
+              #'nascimento',
+              #'estadocivil',
+              'matricula',
+              'prefeitura',
+              'secretaria',
+              'setor',
+            #   'rg',
+              'cpf',
+              #'pis',
+              #'cns',
+              #'ctps',
+              #'ctpsserie',
+              #'ctpsuf',
+              'genero',
+              'phone',
+              'email',
+              'foto',
+              'status',
+              'dataentrada',
+              #'cep',
+              #'logradouro',
+              #'complemento',
+              #'bairro',
+              #'localidade',
+              #'uf',
+              ]
+    template_name = 'pages/colaborador/colaboradorform.html'
+    context_object_name = 'colaboradores'
+    success_url =  reverse_lazy ('colaborador_lista')  
+    
+    def form_valid(self, form):
+        #definir um valor de usuario oculto para saber qual foi o user que fez a postagem
+        form.instance.criadopor = self.request.user
+        
+        #validação de existente mais messagem flash
+        # nome = form.cleaned_data.get('nome')
+        # matricula = form.cleaned_data.get('matricula')
+        # existing_prefeitura = Colaborador.objects.filter(nome=nome).exists()
+        # if existing_prefeitura:
+        #     messages.info(self.request, "Existe um Colaborador Registrado com esse nome. Por favor escolha outro nome !!! Obrigado")
+        #     return redirect("colaborador_new")
+        # existing_matricula = Colaborador.objects.filter(matricula=matricula).exists()
+        # if existing_matricula:
+        #     messages.info(self.request, "Existe uma Matrícula Registrada. Por favor escolha outra!!! Obrigado")
+        #     return redirect("colaborador_new")
+        # else:
+        response = super().form_valid(form)
+        messages.success(self.request, "Colaborador adicionado com sucesso.")
+        return response
+    
+     #alterando esses campos na view
+    def get_context_data(self, *args, **kwargs):
+        context = super().get_context_data(*args, **kwargs)
+        context.update(Home.as_view()(self.request).context_data)
+        context['titulo'] = 'Criando Colaborador'
+        context['botao'] = 'Criar'
+        context['descri'] = 'Criação de colaborador.'
+        
+        return context
+    
+class ColaboradorLista(LoginRequiredMixin,ListView):
+    login_url = reverse_lazy('login')
+    model = Colaborador
+    context_object_name = 'colaboradores'
+    template_name='pages/colaborador/colaboradorlista.html'
+    
+    #pegando as informaçoes obtidas na class Home e passando para essa view
+    def get_context_data(self, *args, **kwargs):
+        context = super().get_context_data(*args, **kwargs)
+        context.update(Home.as_view()(self.request).context_data)
+        return context    
+    
+    #modo de pesquisar na lista por um objeto e dizer se esta ativo ou não
+    paginate_by = 6
+    def get_queryset(self):
+        txt_nome = self.request.GET.get('nome')
+        status = self.request.GET.get('status')
+        if txt_nome:
+             setor = Colaborador.objects.filter(nome__icontains=txt_nome)
+             return setor 
+        if status:  
+            setor = Colaborador.objects.filter(status=status)
+            return setor   
+        else:
+            setor = Colaborador.objects.all()
+        return setor        
+    
+class ColaboradorUpdate(GroupRequiredMixin, LoginRequiredMixin, UpdateView):
+    login_url = reverse_lazy('login')
+    group_required = u'ADM','Gestor'
+    model = Colaborador
+    fields = ['nome',
+              #'nascimento',
+              #'estadocivil',
+              'matricula',
+              'prefeitura',
+              'secretaria',
+              'setor',
+            #   'rg',
+              'cpf',
+              #'pis',
+              #'cns',
+              #'ctps',
+              #'ctpsserie',
+              #'ctpsuf',
+              'genero',
+              'phone',
+              'email',
+              'foto',
+              'status',
+              'dataentrada',
+              #'cep',
+              #'logradouro',
+              #'complemento',
+              #'bairro',
+              #'localidade',
+              #'uf',
+              ]
+    template_name = 'pages/colaborador/colaboradorform.html'
+    success_url =  reverse_lazy ('colaborador_lista')   
+    
+    def form_valid(self, form):
+        
+        form.instance.criadopor = self.request.user
+        
+        
+        response = super().form_valid(form)
+        messages.success(self.request, 'Colaborador Editado com sucesso.')
+        if response.status_code == 404:
+            messages.error(self.request, 'erro')
+        return response 
+    
+    def get_context_data(self, *args, **kwargs):
+        context = super().get_context_data(*args, **kwargs)
+        
+        context['titulo'] = 'Editar Colaborador'
+        context['botao'] = 'Editar'
+        context['descri'] = 'Edição de Dados.'
+        
+        return context         
+    
+class ColaboradorDelete(GroupRequiredMixin, LoginRequiredMixin, DeleteView):
+    login_url = reverse_lazy('login')
+    group_required = u'Administrador'
+    model = Colaborador
+    template_name = 'pages/colaborador/colaboradordelete.html'
+    success_url = reverse_lazy('colaborador_lista')        
+    
+     #se existir uma prefeitura não apagar a secretaria
+    def form_valid(self, form):
+    # Check if a prefecture is registered
+        if Secretaria.objects.exists():
+            messages.error(self.request, 'Não é possível excluir o Colaborador, uma Secretária está vinculada.')
+            return super().form_invalid(form)
+
+        response = super().form_valid(form)
+        messages.warning(self.request, 'colaborador Excluido com sucesso.')
+        return response      
+
+
+#Documentos
+class DocumentoNew(GroupRequiredMixin, LoginRequiredMixin, CreateView,FormView):    
+    login_url = reverse_lazy('login')
+    group_required = u'ADM','Gestor'
+    model = Documento
+    fields = ['nome',
+              'tipo',
+              'numeracao',
+              'ano',
+              'assunto',
+              #'datainicial',
+              'prefeitura',
+              'secretaria',
+              'setor',
+              'status',
+              'anexo',
+              ]
+    template_name = 'pages/documento/documentoform.html'
+    context_object_name = 'documentos'
+    success_url =  reverse_lazy ('documento_new')  
+    
+    def form_valid(self, form):
+        #definir um valor de usuario oculto para saber qual foi o user que fez a postagem
+        data = datetime.date.today()
+        form.instance.criadopor = self.request.user
+        form.instance.datainicial = data
+        #validação de existente mais messagem flash
+        # nome = form.cleaned_data.get('nome')
+        # matricula = form.cleaned_data.get('matricula')
+        # existing_prefeitura = Colaborador.objects.filter(nome=nome).exists()
+        # if existing_prefeitura:
+        #     messages.info(self.request, "Existe um Colaborador Registrado com esse nome. Por favor escolha outro nome !!! Obrigado")
+        #     return redirect("colaborador_new")
+        # existing_matricula = Colaborador.objects.filter(matricula=matricula).exists()
+        # if existing_matricula:
+        #     messages.info(self.request, "Existe uma Matrícula Registrada. Por favor escolha outra!!! Obrigado")
+        #     return redirect("colaborador_new")
+        # else:
+        response = super().form_valid(form)
+        messages.success(self.request, "Documento adicionado com sucesso.")
+        return response
+    
+     #alterando esses campos na view
+    def get_context_data(self, *args, **kwargs):
+        context = super().get_context_data(*args, **kwargs)
+        context.update(Home.as_view()(self.request).context_data)
+        context['titulo'] = 'Criando Documento'
+        context['botao'] = 'Criar'
+        context['descri'] = 'Criação de Documento.'
         
         return context    

@@ -1,0 +1,105 @@
+{% extends 'pages/base/modelo.html' %}
+{% load crispy_forms_tags %}
+{% load static %}
+
+
+{%block titulo%} <title>Deletar Setor</title>{% endblock %}  
+
+{% block sidebar %}
+{% endblock sidebar %}
+
+{% block navbar %}
+{% endblock navbar %}
+
+
+
+{% block saudacao %}
+
+{% endblock saudacao %}
+
+
+{%block conteudo%}
+<div class="card col-sm-12 grid-col--2 ">
+    <div class="card-body bg-gradient-dark">
+      <div class="card-title bg-gray-dark">
+      <h1>Deletar o Registro Setor ?</h1>
+      </div> 
+    <h3>Nome do Setor: ( {{ setor.nome }} ) </h3>
+    <h3>Nome da Secretária: ( {{ setor.secretaria.nome }} ) </h3>
+    <h3>Nome da Prefeitura: {{ setor.prefeitura.nome }}  </h3>
+    <h3>Criador:  {{ setor.criadopor }}  </h3>
+    </div>
+    <div class="card bg-gradient-danger align-content-center text-align-items-center">
+      {% include 'pages/utils/message.html' %}
+    </div>
+
+{% if setor.status == 'inativo' %}
+<div class="card  bg-delete">
+    <div class="card-body">
+      <div class="row">
+        <div class="col-9">
+            <div class="d-flex align-items-center align-self-start">
+            <h3 class="mb-0" style="font-size 54px background: #000;">Status do Setor :  <h2 class="m-2" style="color: red;">{{ setor.status }}</h2></h3>
+            <p class="text-success ml-2 mb-0 font-weight-medium"></p>
+            </div>
+
+        </div>
+        <div class="col-3">
+            <div class="icon icon-box-danger" style="width: 12rem;">
+            <span class="mdi mdi-arrow-top-right icon-item"> ATENÇÂO</span>
+            </div>
+        </div>
+      </div>
+      <h6 class="">Deseja <span class="m-2" style="color: green;">confirmar</span> para <span class="m-2" style="color: red;">DELETAR ?</span> </h6>
+      <form method='post' enctype='multipart/form-data'>
+        {% csrf_token %}
+        <button type="submit" class="btn btn-outline-success">Confirmar</button> 
+        <a href="{%url 'setor_lista'%}" class="btn btn-outline-light">Cancelar</a></button>  
+    </form>
+    </div>
+  </div>
+{% endif %}
+
+{%if setor.status == 'ativo' %}
+
+<div class="card  bg-delete">
+  <div class="card-body">
+        <div class="row">
+          <div class="col-9">
+            <div class="d-flex align-items-center align-self-start">
+              <h3 class="mb-0" style="font-size 54px background: #000;">Status do Setor :  <h2 class="m-2" style="color: #0ca62d;">({{setor.status }})</h2></h3>
+              <p class="text-success ml-2 mb-0 font-weight-medium"></p>
+            </div>
+          </div>
+          <div class="col-3">
+            <div class="icon icon-box-success w-50 h-100">
+              <span class="mdi mdi-arrow-top-right icon-item"> VERIFICADO</span>
+            </div>
+          </div>
+        </div>
+        <h6 class="text-muted font-weight-normal"></h6>
+        <h6 class="">Por Gentileza Alterar STATUS do Setor para <span class="m-2 bg-gradient-light" style="color: red;">INATIVO</span> </h6>
+        <a href="{%url 'setor_lista'%}" class="btn btn-outline-light">Voltar</a></button> 
+      </div>
+    </div>
+  
+    
+     
+
+{%else %}
+
+<div class="card">
+<h6></h6>
+
+
+
+{% endif %}
+{% endblock %}   
+    
+
+{% block conteudo2 %}
+
+{% endblock conteudo2 %}
+
+</div>
+</div>
