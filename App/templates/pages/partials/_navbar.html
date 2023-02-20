@@ -12,7 +12,7 @@
     <ul class="navbar-nav w-100">
       <li class="nav-item w-100">
         <form class="nav-link mt-2 mt-md-0 d-none d-lg-flex search">
-          <input type="text" class="form-control" placeholder="Pesquisa">
+          {% comment %} <input type="text" class="form-control" placeholder="Pesquisa"> {% endcomment %}
         </form>
       </li>
     </ul>
@@ -135,36 +135,54 @@
       <li class="nav-item dropdown">
         <a class="nav-link" id="profileDropdown" href="#" data-toggle="dropdown">
           <div class="navbar-profile">
-            <img class="img-xs rounded-circle" src="{%static 'images/faces/face15.jpg'%}" alt="">
-            <p class="mb-0 d-none d-sm-block navbar-profile-name">Henry Klein</p>
+            {% if user.perfil.foto  %}
+            <img class="img-xs rounded-circle" src="{{ user.perfil.foto.url }}" alt="">
+            {% else %}
+            <img class="img-xs rounded-circle" src="{%static 'images/faces/semfoto.jpg'%}" alt="">
+            {% endif %}
+
+            {% if user.first_name %}
+            <p class="mb-0 d-none d-sm-block navbar-profile-name">{{user.username}}</p>
+            {% endif %}
+            <p class="mb-0 d-none d-sm-block navbar-profile-name">{{user.perfil.nome}}</p>
             <i class="mdi mdi-menu-down d-none d-sm-block"></i>
           </div>
         </a>
         <div class="dropdown-menu dropdown-menu-right navbar-dropdown preview-list" aria-labelledby="profileDropdown">
-          <h6 class="p-3 mb-0">Profile</h6>
+          <h6 class="p-3 mb-0">Perfil</h6>
           <div class="dropdown-divider"></div>
-          <a class="dropdown-item preview-item">
+          <a class="dropdown-item preview-item" href="{% url 'alterasenha' %}">
             <div class="preview-thumbnail">
               <div class="preview-icon bg-dark rounded-circle">
                 <i class="mdi mdi-settings text-success"></i>
               </div>
             </div>
             <div class="preview-item-content">
-              <p class="preview-subject mb-1">Configuração</p>
+              <p class="preview-subject mb-1">Altera Senha</p>
             </div>
           </a>
           <div class="dropdown-divider"></div>
-          <a class="dropdown-item preview-item">
+          <a class="dropdown-item preview-item" href="{% url 'perfil_update' %}">
+            <div class="preview-thumbnail">
+              <div class="preview-icon bg-dark rounded-circle">
+                <i class="bi bi-person-vcard-fill text-warning"></i>
+              </div>
+            </div>
+            <div class="preview-item-content">
+              <p class="preview-subject mb-1">Perfil</p>
+            </div>
+          </a>
+          <div class="dropdown-divider"></div>
+          <a class="dropdown-item preview-item" href="{% url 'logout' %}">
             <div class="preview-thumbnail">
               <div class="preview-icon bg-dark rounded-circle">
                 <i class="mdi mdi-logout text-danger"></i>
               </div>
             </div>
             <div class="preview-item-content">
-              <p class="preview-subject mb-1">Log out</p>
+              <p class="preview-subject mb-1">Sair</p>
             </div>
           </a>
-          <div class="dropdown-divider"></div>
           <p class="p-3 mb-0 text-center">Advanced settings</p>
         </div>
       </li>

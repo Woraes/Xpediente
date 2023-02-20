@@ -44,6 +44,8 @@ INSTALLED_APPS = [
     'bootstrap4',
     "crispy_bootstrap5",
     'App',
+    'usuarios',
+    
 ]
 
 CRISPY_ALLOWED_TEMPLATE_PACKS = ""
@@ -148,11 +150,15 @@ MEDIA_URL = "/uploads/"
 
 
 
+# Configurações do Google
+SOCIAL_AUTH_GOOGLE_OAUTH2_KEY = '974724374867-1qn3tprtulbsb3nrtv5b9484cr2eelr7.apps.googleusercontent.com'
+SOCIAL_AUTH_GOOGLE_OAUTH2_SECRET = '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'
+
 LOGIN_URL = 'login'
 
 LOGIN_REDIRECT_URL = 'home'
 
-LOGOUT_REDIRECT_URL = 'logout'
+LOGOUT_REDIRECT_URL = 'login'
 
 
 STATIC_URL = 'static/'

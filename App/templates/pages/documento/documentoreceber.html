@@ -1,0 +1,52 @@
+
+{% extends 'pages/base/modelo.html' %}
+{% load crispy_forms_tags %}
+{% load static %}
+
+
+
+{%block titulo%} 
+<title>Receber Documentos </title>
+{% endblock %}
+
+
+
+{%block conteudo%}
+
+<h2>Documentos para Receber</h2>
+  {% if documentos %}
+    <table class="table">
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>Origem</th>
+          <th>Data de Envio</th>
+          <th>Opções</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for documento in documentos %}
+          <tr>
+            <td>{{ documento.id }}</td>
+            <td>{{ documento.origem }}</td>
+            <td>{{ documento.datainicial }}</td>
+            <td>
+              <form method="post">
+                {% csrf_token %}
+                {{form|crispy}}
+                <button type="submit" class="btn btn-primary">Receber</button>
+              </form>
+            </td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  {% else %}
+    <p>Nenhum documento para receber.</p>
+  {% endif %}
+
+
+{% endblock  %}
+
+{% block conteudo2 %}
+{% endblock conteudo2 %}

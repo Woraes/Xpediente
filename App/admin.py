@@ -7,4 +7,4 @@ admin.site.register(Prefeitura)
 admin.site.register(Secretaria)
 admin.site.register(Setor)
 admin.site.register(Colaborador)
-admin.site.register(Documento)
+

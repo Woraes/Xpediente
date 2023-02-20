@@ -1,0 +1,30 @@
+{% extends 'pages/base/modelo.html' %}
+{% load crispy_forms_tags %}
+{% load static %}
+
+
+
+{%block titulo%} 
+<title>Mover Documentos </title>
+{% endblock %}
+
+
+
+{%block conteudo%}
+
+
+<h2>Documentos</h2>
+  <ul>
+    {% for documento in documentos %}
+      <li>{{ documento.nome }} - Setor Atual: {{ documento.setor_atual }}</li>
+      <ul>
+       
+    
+    {% endfor %}
+  </ul>
+  <a href="{% url 'documento_new' %}">Novo Documento</a>
+
+{% endblock  %}
+
+{% block conteudo2 %}
+{% endblock conteudo2 %}

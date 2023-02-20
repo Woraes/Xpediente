@@ -42,7 +42,7 @@
   <body>
     <div class="container-scroller">
       
-
+      {% if request.user.is_authenticated %}
       {% block sidebar %}
       <!-- partial:partials/_sidebar.html -->
       {% include 'pages/partials/_sidebar.html' %}
@@ -73,9 +73,14 @@
                         <link rel="shortcut icon" href="{% static 'images/favicon.png'%}" />
                       </div>
                       <div class="col-5 col-sm-7 col-xl-8 p-0">
-                        <h3 class="mb-1 mb-sm-0">{{msg}} {{user}} Bem Vindo ao Sistema </h3>
+                        {% if user.first_name %}
+                        <h3 class="mb-1 mb-sm-0">{{msg}} {{user.username}} Bem Vindo ao Sistema </h3>
+                        <h4>Complete seu Cadastro de Perfil</h4>
+                        {% else %}
+                        <h3 class="mb-1 mb-sm-0">{{msg}} {{user.perfil.nome}} Bem Vindo ao Sistema </h3>
                         <p class="mb-0 font-weight-normal d-none d-sm-block">Data de Hoje: {{data}}</p>
                         <p "mb-0 font-weight-normal d-none d-sm-block">Seu último acesso foi: {{request.user.last_login}}</p>
+                        {% endif %}
                       </div>
                       <div class="col-3 col-sm-2 col-xl-2 pl-0 text-center">
                         <span>
@@ -737,6 +742,7 @@
           </div>
           <!-- content-wrapper ends -->
           {% endblock conteudo %}
+          {% endif %} 
 
           {% block modal %}
           {% include 'pages/utils/modal.html' %} 
@@ -782,6 +788,11 @@
     <script src="{% static 'js/misc.js'%}"></script>
     <script src="{% static 'js/settings.js'%}"></script>
     <script src="{% static 'js/todolist.js'%}"></script>
+    <script src="{% static 'js/jquery.mask.js'%}"></script>
+    <script src="{% static 'js/jquery.mask.min.js'%}"></script>
+    <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.3/umd/popper.min.js"></script>
+
     
     <!-- endinject -->
     <!-- Custom js for this page -->
@@ -789,77 +800,19 @@
     <!-- End custom js for this page -->
 
       <!-- Adicionando Javascript -->
-      <script>
-    
-        function limpa_formulário_cep() {
-                //Limpa valores do formulário de cep.
-                document.getElementById('rua').value=("");
-                document.getElementById('bairro').value=("");
-                document.getElementById('cidade').value=("");
-                document.getElementById('uf').value=("");
-                document.getElementById('ibge').value=("");
-        }
-    
-        function meu_callback(conteudo) {
-            if (!("erro" in conteudo)) {
-                //Atualiza os campos com os valores.
-                document.getElementById('rua').value=(conteudo.logradouro);
-                document.getElementById('bairro').value=(conteudo.bairro);
-                document.getElementById('cidade').value=(conteudo.localidade);
-                document.getElementById('uf').value=(conteudo.uf);
-                document.getElementById('ibge').value=(conteudo.ibge);
-            } //end if.
-            else {
-                //CEP não Encontrado.
-                limpa_formulário_cep();
-                alert("CEP não encontrado.");
-            }
-        }
-            
-        function pesquisacep(valor) {
-    
-            //Nova variável "cep" somente com dígitos.
-            var cep = valor.replace(/\D/g, '');
-    
-            //Verifica se campo cep possui valor informado.
-            if (cep != "") {
-    
-                //Expressão regular para validar o CEP.
-                var validacep = /^[0-9]{8}$/;
-    
-                //Valida o formato do CEP.
-                if(validacep.test(cep)) {
-    
-                    //Preenche os campos com "..." enquanto consulta webservice.
-                    document.getElementById('rua').value="...";
-                    document.getElementById('bairro').value="...";
-                    document.getElementById('cidade').value="...";
-                    document.getElementById('uf').value="...";
-                    document.getElementById('ibge').value="...";
-    
-                    //Cria um elemento javascript.
-                    var script = document.createElement('script');
-    
-                    //Sincroniza com o callback.
-                    script.src = 'https://viacep.com.br/ws/'+ cep + '/json/?callback=meu_callback';
-    
-                    //Insere script no documento e carrega o conteúdo.
-                    document.body.appendChild(script);
-    
-                } //end if.
-                else {
-                    //cep é inválido.
-                    limpa_formulário_cep();
-                    alert("Formato de CEP inválido.");
-                }
-            } //end if.
-            else {
-                //cep sem valor, limpa formulário.
-                limpa_formulário_cep();
-            }
-        };
-    
+
+      <!-- colocando mascaras nosimput -->
+      <script>    
+        $(document).ready(function() {
+
+          alert('oi')
+
+          $("#id_cpf").mask("000.000.000-00")
+          $("#id_telefone").mask("+55 00 00000-0000")
+
+        }):
         </script>
+
            <!-- inserir dados no form-->
         <script>
           {% comment %} window.onload = function() {

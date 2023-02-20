@@ -4,14 +4,14 @@
 
 
 {%block titulo%} 
-<title>Lista Colaboradores </title>
+<title>Lista de Documentos </title>
 {% endblock %}
 
 
 
 {%block conteudo%}
 <div class="card ">
-    <h4 class="card-title"><i class="bi bi-list-stars" style="font-size: 2rem; color: #0090e7;"></i> Lista de Colaboradores</h4>
+    <h4 class="card-title"><i class="bi bi-list-stars" style="font-size: 2rem; color: #0090e7;"></i> Lista de Documentos</h4>
     <div class="card bg-pri align-content-center text-align-items-center">
         {% include 'pages/utils/message.html' %}
       </div>
@@ -29,19 +29,22 @@
                 <th>
                     <button class="btn btn-primary" id="button" type="submit">Buscar</button>
                     <a class="btn btn-primary" href="{% url 'colaborador_lista'%}">Limpar</a>
-                    <a class="btn btn-info" href="{% url 'colaborador_new'%}"><i class="bi bi-plus-circle-dotted"></i>Adicionar Colaborador</a>
                 </th>
-                <th >
+                {% comment %} <th >
                     <form class="form-check form-switch " action="?" method="GET">
                         <div class="form-check form-switch">
-                        <label  for="ativo">ATIVO:</label>
+                        <label  for="registrado">Registrado:</label>
+                        <input  type="checkbox" name="status" id="registrado" value="registrado">
+
+                        <label  for="enviado">Enviado:</label>
                         <input  type="checkbox" name="status" id="ativo" value="ativo">
-                        <label  for="inativo">INATIVO:</label>
+
+                        <label  for="recebido">Recebido:</label>
                         <input  type="checkbox" name="status" id="inativo" value="inativo">
                         <button class="btn btn-primary" id="button" type="submit">Filtrar</button>
                         </div>
                     </form>
-                </th>
+                </th> {% endcomment %}
             </tr>
             </form>
         </tr>
@@ -50,24 +53,24 @@
 
             <tr>
                 <th style="font-size: 1rem; color: #0090e7;" ><strong>Nome</strong> </th>
-                <th style="font-size: 1rem; color: #0090e7;" ><strong>CPF</strong> </th>
-                <th style="font-size: 1rem; color: #0090e7;" ><strong>Matrícula</strong> </th> 
+                <th style="font-size: 1rem; color: #0090e7;" ><strong>Numeração</strong> </th>
+                <th style="font-size: 1rem; color: #0090e7;" ><strong>Tipo</strong> </th> 
                 <th style="font-size: 1rem; color: #0090e7;" ><strong>Status</strong> </th>
                 <th style="font-size: 1rem; color: #0090e7;" ><strong>Opções</strong> </th>
             </tr>
   
             
-            {%for colaborador in object_list %}
-                    
+            {%for documento in documentos %}
+            {% if documento.status == 'registrado' %}      
             <tr style="margin: 20px;">
-                <td style="font-size: 1rem; color: #ebe6f2; margin-left: 80px;">{{colaborador.nome}}</td>
-                <td style="font-size: 1rem; color: #ebe6f2; margin-left: 80px;">{{colaborador.cpf}}</td>
-                <td style="font-size: 1rem; color: #ebe6f2; ">{{colaborador.matricula}}</td>
-                <td style="font-size: 1rem; color: #ebe6f2; margin-left: 80px;">{{colaborador.status}}</td>
+                <td style="font-size: 1rem; color: #ebe6f2; margin-left: 80px;">{{documento.nome}}</td>
+                <td style="font-size: 1rem; color: #ebe6f2; margin-left: 80px;">{{documento.numeracao}}</td>
+                <td style="font-size: 1rem; color: #ebe6f2; ">{{documento.tipo}}</td>
+                <td style="font-size: 1rem; color: #ebe6f2; margin-left: 80px;">{{documento.status}}</td>
 
                 <td>
-                    <a href="{% url 'colaborador_update' colaborador.id %}"class="btn btn-warning", title='Editar'><i class="bi bi-pencil-square" style="font-size: 1rem; color: cornflowerblue;"></i></a> 
-                    <a href="{% url 'colaborador_delete' colaborador.id %}"class="btn btn-danger", title='Deletar'  ><i class="bi bi-trash"></i></a>
+                    <a href="{% url 'mover_documento' documento.id %}"class="btn btn-warning", title='Enviar'><i class="bi bi-pencil-square" style="font-size: 1rem; color: cornflowerblue;">Encaminhar</i></a> 
+                    <a href=""class="btn btn-danger", title='Deletar'  ><i class="bi bi-trash"></i></a>
                     <a href=""class="btn btn-bg-success", title='pdf'  ><i class="bi bi-filetype-pdf"></i></a>
                 
                     <button type="button" class="btn btn-danger" data-toggle="modal" data-target="#deleteModal">
@@ -75,7 +78,7 @@
                       </button>
 
                 </td>
-              
+                {% endif %}  
                  </tr>
                 {%empty%}
                 <tr>

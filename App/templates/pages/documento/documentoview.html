@@ -1,0 +1,38 @@
+{% extends 'pages/base/modelo.html' %}
+{% load crispy_forms_tags %}
+{% load static %}
+
+{% block titulo %}
+<title>Cadastro doc</title>
+{% endblock  %}
+
+{% block conteudo %}
+
+<h1>Documento {{ documento.nome }}</h1>
+<p>Numeração: {{documento.numeracao}}</p>
+<p>Data de criação: {{ documento.datainicial }}</p>
+<p>Origem: 
+    {{ documento.prefeitura.nome }},
+    {{ documento.secretaria.nome}}
+    Setor: {{ documento.setor.nome}}
+
+</p>
+<p>Status: {{ documento.status }}</p>
+{% if documento.status == 'registrado' %}
+<a href="{% url 'secretaria_lista' %}" class="btn btn-info">Cancelar</a>
+<a href="{% url 'secretaria_lista' %}" class="btn btn-info">Encaminhar</a>
+
+
+
+
+{% elif documento.status == 'enviado' %}
+<form method="POST" action="{% url 'confirmar_recebimento' id=documento.id %}">
+{% csrf_token %}
+<button type="submit">Confirmar recebimento</button>
+</form>
+{% endif %}
+
+{% endblock conteudo %}
+
+{% block conteudo2 %}
+{% endblock conteudo2 %}

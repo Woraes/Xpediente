@@ -1,0 +1,144 @@
+
+{% load crispy_forms_tags %}
+{% load static %}
+<!DOCTYPE html>
+<html lang="pt-br" >
+  <head>
+    <!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="description" content="Xpediente">
+    <meta name="author" content="William de Moraes">
+
+{% block style %}
+<link href="//maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" rel="stylesheet" id="bootstrap-css">
+<!-- Layout styles -->
+<link rel="stylesheet" href="{% static 'css/login.css'%}">
+<link rel="shortcut icon" href="{% static 'images/favicon.png'%}" />
+{% endblock style %}
+
+{% block titulo %}
+<title>Autenticação</title>
+{% endblock  %}
+
+</head>
+
+<body>
+
+{% block conteudo %}
+{% endblock conteudo %}
+
+
+{% block conteudo2 %}
+
+<section class="login-block h-100">
+    <div class="container">
+	<div class="row">
+    
+		<div class="col-md-4 login-sec">
+      
+      <h2 class="text-center">Login</h2>
+		  
+		    <form method="post" class="login-form">
+  <div class="form-group">
+    {% csrf_token %}
+        
+        
+    {{form|crispy}}
+  </div>
+  
+  
+    <div class="form-check">
+    <label class="form-check-label">
+      <input type="checkbox" class="form-check-input">
+      <small>Lembrar-me</small>
+    </label>
+    <button type="submit" class="btn btn-primary float-right">Entrar</button>
+  </div>
+  
+</form>
+<div class="copy-text">Criado Por<i class="fa fa-heart"></i>  William Moraes</div>
+		</div>
+		<div class="col-md-8 bg-gradient-dark">
+            <div id="carouselExampleIndicators" class="carousel slide" data-ride="carousel">
+                 <ol class="carousel-indicators">
+                    <li data-target="#carouselExampleIndicators" data-slide-to="0" class="active"></li>
+                    <li data-target="#carouselExampleIndicators" data-slide-to="1"></li>
+                    <li data-target="#carouselExampleIndicators" data-slide-to="2"></li>
+                  </ol>
+            <div class="carousel-inner" role="listbox">
+    <div class="carousel-item active">
+      <img class="d-block img-fluid" src="{% static 'images/logopreto.png' %}" alt="First slide">
+      <div class="carousel-caption d-none d-md-block">
+        <div class="banner-text">
+            <h2>Xpediente</h2>
+            <p>Movimentação de Documentos em geral.</p>
+        </div>	
+  </div>
+    </div>
+    <div class="carousel-item">
+      <img class="d-block img-fluid" src="https://images.pexels.com/photos/7097/people-coffee-tea-meeting.jpg" alt="First slide">
+      <div class="carousel-caption d-none d-md-block">
+        <div class="banner-text">
+            <h2>Agilizando seu Dia a dia</h2>
+            <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation</p>
+        </div>	
+    </div>
+    </div>
+    
+  </div>
+            </div>	   
+		    
+		</div>
+	</div>
+</div>
+</section>
+{% endblock conteudo2 %}
+
+
+{% block modal %}
+{% endblock modal %}
+
+{% block footer %}
+
+
+{% endblock footer %}
+
+
+
+
+
+
+
+
+
+
+
+{% block script %}
+<script src="//maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"></script>
+<script src="//code.jquery.com/jquery-1.11.1.min.js"></script>
+<!-- plugins:js -->
+<script src="{% static 'vendors/js/vendor.bundle.base.js'%}"></script>
+<!-- endinject -->
+<!-- Plugin js for this page -->
+<script src="{% static 'vendors/chart.js/Chart.min.js'%}"></script>
+<script src="{% static 'vendors/progressbar.js/progressbar.min.js'%}"></script>
+<script src="{% static 'vendors/jvectormap/jquery-jvectormap.min.js'%}"></script>
+<script src="{% static 'vendors/jvectormap/jquery-jvectormap-world-mill-en.js'%}"></script>
+<script src="{% static 'vendors/owl-carousel-2/owl.carousel.min.js'%}"></script>
+
+<!-- End plugin js for this page -->
+<!-- inject:js -->
+<script src="{% static 'js/off-canvas.js'%}"></script>
+<script src="{% static 'js/hoverable-collapse.js'%}"></script>
+<script src="{% static 'js/misc.js'%}"></script>
+<script src="{% static 'js/settings.js'%}"></script>
+<script src="{% static 'js/todolist.js'%}"></script>
+
+<!-- endinject -->
+<!-- Custom js for this page -->
+<script src="{% static 'js/dashboard.js'%}"></script>
+{% endblock script %}
+
+</body>
+</html>

@@ -23,7 +23,7 @@
     <div class="card-body  w-100">
         <h4 class="card-title">{{descri}}</h4>
 
-        <form class="form-row" action="" method="post">
+        <form class="form-row" action="" method="post" enctype="multipart/form-data">
           {% csrf_token %}
         
           <div class="form-group col-md-4">
@@ -34,9 +34,9 @@
             {{ form.tipo|as_crispy_field }}
           </div>
 
-          <div class="form-group col-md-4 ">
+          {% comment %} <div class="form-group col-md-4 ">
             {{ form.status|as_crispy_field }}
-          </div>
+          </div> {% endcomment %}
 
           <div class="form-group col-md-4">
             {{ form.numeracao|as_crispy_field }}
@@ -44,6 +44,9 @@
         
           <div class="form-group col-md-4">
             {{ form.ano|as_crispy_field }}
+          </div>
+          <div class="form-group col-md-4">
+            <span></span>
           </div>
           <div class="form-group col-md-4">
             <span></span>

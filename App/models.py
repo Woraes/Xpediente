@@ -1,3 +1,4 @@
+from datetime import timezone
 from django import forms
 from django.db import models
 
@@ -18,6 +19,7 @@ from crispy_forms.layout import Layout, Submit, Row, Div
 
 
             
+  
         
 
 
@@ -133,49 +135,45 @@ class Documento(models.Model):
     tipo = models.CharField(max_length=15, blank=False, null=True, verbose_name='Tipo',
         choices=(
                 ( 'processo' ,  'Processo' ),
-                ( 'requerimeto' ,  'requerimento' ),
+                ( 'requerimeto' ,  'Requerimento' ),
                 ( 'ata' ,  'Ata' ),
                 ( 'ci' ,  'Ci' ),
                 ( 'documento' ,  'Documento' ),
             ))
-    numeracao = models.CharField(max_length=15, blank=True, null=True, verbose_name='Numeração')
-    ano = models.CharField(max_length=15,  blank=True, null=True, verbose_name='Ano')
+    numeracao = models.CharField(max_length=15, blank=False, unique=True, null=True, verbose_name='Numeração')
+    ano = models.CharField(max_length=15,  blank=False, null=True, verbose_name='Ano')
     assunto = models.TextField(max_length=15, blank=True, null=True, verbose_name='Assunto')
     datainicial = models.DateTimeField(max_length=15, blank=True, null=True, verbose_name='Data Inicial') 
     prefeitura = models.ForeignKey(Prefeitura, on_delete=models.CASCADE, verbose_name='Prefeitura')
     secretaria = models.ForeignKey(Secretaria, on_delete=models.CASCADE, verbose_name='Secretária')
     setor = models.ForeignKey(Setor, on_delete=models.CASCADE, verbose_name='Setor')
+    
     status =models.CharField(max_length=10, blank=False, null=True, verbose_name='Status',
         choices=(
-                ( 'ativo' ,  'Ativo' ),
-                ( 'inativo' ,  'Inativo' ),
+                ( 'registrado' ,  'Registrado' ),
+                ( 'enviado' ,  'Enviado' ),
+                ( 'recebido' ,  'Recebido' ),
             ))
-    anexo = models.FileField(upload_to='', null=True , blank=True, verbose_name='Anexo')
+    anexo = models.FileField(upload_to='anexo/', null=True , blank=True, verbose_name='Anexo')
 
-       
+    data_envio = models.DateTimeField(null=True, blank=True)
+    data_recebimento = models.DateTimeField(null=True, blank=True)
+    
     criadopor = models.ForeignKey(User, on_delete=models.PROTECT)
+    origem = models.ForeignKey(User, on_delete=models.CASCADE, related_name='documentos_enviados')
+    destino = models.ForeignKey(User, on_delete=models.CASCADE, related_name='documentos_recebidos')
+    
         
     def __str__(self):
             return '{} - ({}) - ({}) - Ano:{}  - Criado por:({}) '.format(self.nome, self.tipo, self.numeracao,self.ano, self.criadopor)       
    
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.helper = FormHelper()
-         
-           
-   
-class DocumentoForm(forms.ModelForm):
-     
-    
-    def __init__(self, *args, **kwargs):
-        super(DocumentoForm, self).__init__(*args, **kwargs)
-        self.helper = FormHelper()
-        
+ 
+class Historico(models.Model):
+    documento = models.ForeignKey(Documento, on_delete=models.CASCADE)
+    setor = models.ForeignKey(Setor, on_delete=models.CASCADE)
+    data_entrada = models.DateTimeField(default=timezone)
+    data_saida = models.DateTimeField(null=True, blank=True)
 
-        # Desabilitando o campo "ano"
-        
-         
-        
-    class Meta:
-        model = Documento
-        fields = '__all__'          
+    def __str__(self):
+        return f"{self.documento} - {self.setor} ({self.data_entrada} - {self.data_saida})"
+            

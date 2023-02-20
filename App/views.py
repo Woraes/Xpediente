@@ -3,6 +3,7 @@ import io
 from django.contrib import messages
 from django.http import FileResponse, HttpResponse, HttpResponseRedirect
 from django.shortcuts import get_object_or_404, redirect, render
+from django.template import RequestContext
 from django.views import View
 
 from django.views.generic import TemplateView, CreateView, UpdateView, DeleteView,FormView
@@ -26,13 +27,16 @@ from App.forms import FormSecretaria
 
 from App.gerapdf import GeraPDF
 from django import forms
+from django.contrib.auth.views import LoginView
+
 
 #models
-from .models import Prefeitura
+from .models import Historico, Prefeitura
 from .models import Secretaria
 from .models import Setor
 from .models import Colaborador
 from .models import Documento
+
 
 #forms
 
@@ -47,6 +51,7 @@ class Home(LoginRequiredMixin, TemplateView):
         context['num_secretaria'] = Secretaria.objects.count()
         context['num_setor'] = Setor.objects.count()
         context['num_colaborador'] = Colaborador.objects.count()
+        
         data = datetime.date.today()
         hora = (datetime.datetime.now())
         horaint = int(hora.strftime('%H'))
@@ -62,6 +67,8 @@ class Home(LoginRequiredMixin, TemplateView):
         context["msg"] = msg
         context["data"] = data    
         return context
+    
+    
 
 #Classes Prefeitura
 class PrefeituraNew(GroupRequiredMixin, LoginRequiredMixin, CreateView):
@@ -219,7 +226,7 @@ class PrefeituraUpdate(GroupRequiredMixin,LoginRequiredMixin, UpdateView,ListVie
     
 class PrefeituraDelete(GroupRequiredMixin, LoginRequiredMixin, DeleteView):
     login_url = reverse_lazy('login')
-    group_required = u'Administrador'
+    group_required = u'ADM'
     model = Prefeitura
     
     template_name = 'pages/prefeitura/prefeituradelete.html'
@@ -767,7 +774,7 @@ class DocumentoNew(GroupRequiredMixin, LoginRequiredMixin, CreateView,FormView):
               'prefeitura',
               'secretaria',
               'setor',
-              'status',
+              #'status',
               'anexo',
               ]
     template_name = 'pages/documento/documentoform.html'
@@ -779,6 +786,9 @@ class DocumentoNew(GroupRequiredMixin, LoginRequiredMixin, CreateView,FormView):
         data = datetime.date.today()
         form.instance.criadopor = self.request.user
         form.instance.datainicial = data
+        form.instance.status = 'registrado'
+        form.instance.origem = self.request.user
+        form.instance.destino = self.request.user
         #validação de existente mais messagem flash
         # nome = form.cleaned_data.get('nome')
         # matricula = form.cleaned_data.get('matricula')
@@ -798,9 +808,137 @@ class DocumentoNew(GroupRequiredMixin, LoginRequiredMixin, CreateView,FormView):
      #alterando esses campos na view
     def get_context_data(self, *args, **kwargs):
         context = super().get_context_data(*args, **kwargs)
-        context.update(Home.as_view()(self.request).context_data)
-        context['titulo'] = 'Criando Documento'
+        #context.update(Home.as_view()(self.request).context_data)
+        context['titulo'] = 'Registrando Documento'
         context['botao'] = 'Criar'
-        context['descri'] = 'Criação de Documento.'
+        context['descri'] = 'Registro de Documento.'
         
         return context    
+    
+#Documentos Criados
+class DocumentoLista(LoginRequiredMixin,ListView):
+    login_url = reverse_lazy('login')
+    model = Documento
+    context_object_name = 'documentos'
+    template_name='pages/documento/documentolista.html'
+    
+    #pegando as informaçoes obtidas na class Home e passando para essa view
+    def get_context_data(self, *args, **kwargs):
+        context = super().get_context_data(*args, **kwargs)
+        context.update(Home.as_view()(self.request).context_data)
+        
+        context['titulo'] = 'Registrando Documento'
+        context['botao'] = 'Criar'
+        context['descri'] = 'Registro de Documento.'
+        return context    
+    
+     #modo de pesquisar na lista por um objeto e dizer se esta ativo ou não
+    paginate_by = 6
+    def get_queryset(self):
+        txt_numeracao = self.request.GET.get('numeracao')
+        status = self.request.GET.get('status')
+        if txt_numeracao:
+             documento =Documento.objects.filter(numeracao__icontains=txt_numeracao)
+             return documento 
+        if status:  
+            documento = Documento.objects.filter(status=status)
+            return documento   
+        else:
+            documento = Documento.objects.all()
+        return documento        
+     
+    
+class DocumentoEnviar(GroupRequiredMixin, LoginRequiredMixin, UpdateView):
+    login_url = reverse_lazy('login')
+    group_required = u'ADM','Gestor'
+    model = Documento
+    fields = [#'nome',
+              #'tipo',
+              #'numeracao',
+              #'ano',
+              #'assunto',
+              #'datainicial',
+              #'data_envio',
+              #'prefeitura',
+              #'secretaria',
+              'setor',
+              #'status',
+              'anexo',
+              ]
+    template_name = 'pages/documento/documentoenviar.html'
+    success_url =  reverse_lazy ('documento_lista')   
+    
+    def form_valid(self, form):
+        data = datetime.date.today()
+        form.instance.criadopor = self.request.user
+        form.instance.status = 'enviado'
+        form.instance.data_envio = data
+        
+        
+        response = super().form_valid(form)
+        messages.success(self.request, 'Documento Enviado com sucesso.')
+        if response.status_code == 404:
+            messages.error(self.request, 'erro')
+        return response 
+    
+    def get_context_data(self, *args, **kwargs):
+        context = super().get_context_data(*args, **kwargs)
+        
+        context['titulo'] = 'Envio de documento '
+        context['botao'] = 'Enviar'
+        context['descri'] = 'Edição de Dados.'
+        
+        return context         
+    
+    
+    
+    
+class EnviarDocumentoView(LoginRequiredMixin,View):
+    login_url = reverse_lazy('login')
+    template_name='pages/documento/documentoenviar.html'
+    
+    
+    
+    
+    def get(self, request):
+        return render(request, 'pages/documento/documentoenviar.html')
+
+    
+    def post(self, request):
+        origem = request.user
+        destino = request.POST.get('destino')
+        documento = Documento(origem=origem, destino=destino)
+        documento.save()
+        return redirect('documento_enviar')    
+    
+class ReceberDocumentoView(View):
+    
+    
+    def form_valid(self, form):
+        form.instance.criadopor = self.request.user
+    
+    def get(self, request):
+        documentos = Documento.objects.filter(destino=request.user, data_recebimento=None)
+        return render(request, 'pages/documento/documentoreceber.html', {'documentos': documentos})
+
+    
+    def post(self, request):
+        documento_id = request.POST.get('id')
+        documento = Documento.objects.get(id=documento_id)
+        documento.data_recebimento = datetime.timezone.now()
+        documento.save()
+        return redirect('pages/documento/documentoreceber.html')  
+    
+    
+      
+def mover_documento(request, documento_id):
+    documento = get_object_or_404(Documento, pk=documento_id)
+    if request.method == "POST":
+        setor_id = request.POST['setor']
+        setor = get_object_or_404(Setor, pk=setor_id)
+        Historico.objects.create(documento=documento, setor=setor, data_entrada=datetime.timezone.now())
+        documento.setor_atual = setor
+        documento.save()
+        return redirect('lista_documentos')
+    setores = Setor.objects.all()
+    return render(request, 'pages/documento/mover_documento.html', {'documento': documento, 'setores': setores})    

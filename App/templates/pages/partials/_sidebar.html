@@ -3,20 +3,27 @@
 
 <nav class="sidebar sidebar-offcanvas" id="sidebar">
   <div class="sidebar-brand-wrapper d-none d-lg-flex align-items-center justify-content-center fixed-top">
-    <a class="sidebar-brand brand-logo" href="index.html"><img src="{%static 'images/logo.svg'%}" alt="logo" /></a>
-    <a class="sidebar-brand brand-logo-mini" href="index.html"><img src="{%static 'images/logo-mini.svg'%}" alt="logo" /></a>
+    <a class="sidebar-brand brand-logo img-xs rounded-circle " href="{%url 'home'%}"><img src="{%static 'images/logocortadaB.png'%}" alt="logo" style="height: 100px; "/></a>
+    <a class="sidebar-brand brand-logo-mini " href="{%url 'home'%}"><img src="{%static 'images/logo-mini2.png' %}" alt="logo" style="height: 15px; width: 15px margin: 0px" /></a>
   </div>
   <ul class="nav">
     <li class="nav-item profile">
       <div class="profile-desc">
         <div class="profile-pic">
           <div class="count-indicator">
-            <img class="img-xs rounded-circle " src="{% static 'images/faces/face15.jpg' %}" alt="">
-            <span class="count bg-danger"></span>
+            {% if user.perfil.foto  %}
+            <img class="img-xs rounded-circle " src="{{ user.perfil.foto.url }}" alt="">
+            {% else %}
+            <img class="img-xs rounded-circle" src="{%static 'images/faces/semfoto.jpg'%}" alt="">
+            {% endif %}
+            <span class="count bg-success"></span>
           </div>
           <div class="profile-name">
-            <h5 class="mb-0 font-weight-normal">Henry Klein</h5>
-            <span>Gold Member</span>
+            {% if user.first_name %}
+            <h5 class="mb-0 font-weight-normal">{{user.username}}</h5>
+            {% endif %}
+            <h5 class="mb-0 font-weight-normal">{{user.username|slice:"0:10"}}</h5>
+            <span>{{user.groups.all.0.name }}</span>
           </div>
         </div>
         <a href="#" id="profile-dropdown" data-toggle="dropdown"><i class="mdi mdi-dots-vertical"></i></a>
@@ -72,14 +79,15 @@
         <span class="menu-icon">
           <i class="mdi mdi-laptop"></i>
         </span>
-        <span class="menu-title">Basic UI Elements</span>
+        <span class="menu-title">Documentos</span>
         <i class="menu-arrow"></i>
       </a>
       <div class="collapse" id="ui-basic">
         <ul class="nav flex-column sub-menu">
-          <li class="nav-item"> <a class="nav-link" href="pages/ui-features/buttons.html">Buttons</a></li>
-          <li class="nav-item"> <a class="nav-link" href="pages/ui-features/dropdowns.html">Dropdowns</a></li>
-          <li class="nav-item"> <a class="nav-link" href="pages/ui-features/typography.html">Typography</a></li>
+          <li class="nav-item"> <a class="nav-link" href="{% url 'documento_new'%}">Cadastro</a></li>       
+          <li class="nav-item"> <a class="nav-link" href="{% url 'documento_lista'%}">Lista</a></li> 
+          <li class="nav-item"> <a class="nav-link" href="">Envio</a></li>
+          <li class="nav-item"> <a class="nav-link" href="{% url 'documento_receber'%}">Recebimento</a></li>
         
         </ul>
       </div>
@@ -100,6 +108,11 @@
           <li class="nav-item"> <a class="nav-link" href="{% url 'setor_new'%}">Setor</a></li> 
           <li class="nav-item"> <a class="nav-link" href="{% url 'colaborador_new'%}">Colaborador</a></li>
           <li class="nav-item"> <a class="nav-link" href="{% url 'documento_new'%}">Documentos</a></li>       
+
+          {% if user.groups.all.0.name == 'ADM' %}
+          <li class="nav-item"> <a class="nav-link" href="{% url 'usuario_new'%}">Usuários</a></li>
+          {% endif %}
+        
         </ul>
       </div>
     </li>

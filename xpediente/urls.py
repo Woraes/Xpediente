@@ -16,6 +16,8 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path, include
 from App import urls as app_urls
+from usuarios import urls as usuarios_urls
+
 
 
 
@@ -27,4 +29,11 @@ from django.conf.urls.static import static
 urlpatterns = [
     path('admin/', admin.site.urls),
     path ('', include(app_urls)),
-]
+    path('', include(usuarios_urls)),
+   
+   
+   
+   #ativar para pegar as fotos quando em produção
+]#+ static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+
+

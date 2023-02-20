@@ -1,11 +1,14 @@
 from django import forms
 from django.forms import ModelForm
 
-from App.models import Prefeitura, Secretaria
+from App.models import Documento, Prefeitura, Secretaria,Setor
 from crispy_forms.helper import FormHelper
 from crispy_forms.layout import Layout
 from crispy_forms.layout import Row
 from crispy_forms.layout import Field
+from django.contrib.auth.models import User, Group
+from django.contrib.auth.forms import UserCreationForm
+from django.core.exceptions import ValidationError
 
 # class FormPrefeitura(forms.Form):
 #     class Meta:
@@ -33,13 +36,7 @@ class FormSecretaria(forms.ModelForm):
             
         ]
         
-    def __init__(self, *args, **kwargs):
-        super(FormSecretaria, self).__init__(*args, **kwargs)
-        self.helper = FormHelper()
-        self.helper.layout = Layout(
-                Field('nome', css_class='form-group col-md-6'),
-                Field('prefeitura', css_class='form-group col-md-6'),
-            )
+
             
             
         

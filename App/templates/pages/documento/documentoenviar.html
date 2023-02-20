@@ -1,0 +1,70 @@
+{% extends 'pages/base/modelo.html' %}
+{% load crispy_forms_tags %}
+{% load static %}
+
+
+
+{%block titulo%} 
+<title>Enviar Documentos </title>
+{% endblock %}
+
+
+
+{%block conteudo%}
+
+{% comment %} <div class="card bg-gradient-dark w-100 ">
+  <div class="card align-content-center text-align-items-center">
+    {% include 'pages/utils/message.html' %}
+  </div>  
+  <div class="card-body">
+<h2>Enviar Documento</h2>
+</div>
+<h3>Dados do Documento</h3>
+<p>Nome do Documento:  {{documento.nome}} </p>
+<p>Tipo do Documento: {{documento.tipo}}</p>
+<p>Origem: {{documento.setor.nome}}</p>
+<p>Data da Origem: {{documento.datainicial}}</p>
+</div>
+<h2>Destino</h2>
+<form class="form-row" action="" method="post">
+  {% csrf_token %}
+  <div class="form-group col-md-4">
+    {{ form.setor|as_crispy_field }}
+  </div>
+  <div class="form-group col-md-4">
+    {{ form.anexo|as_crispy_field }}
+  </div>
+
+
+  <div class="form-group col-md-4">
+  <button type="submit" class="btn btn-primary">Enviar</button>
+  <a href="{% url 'documento_lista' %}" class="btn btn-secondary">Cancelar</a>
+  </div>
+</form> {% endcomment %}
+<h2>Documentos</h2>
+  <ul>
+    {% for documento in documentos %}
+      <li>{{ documento }} - Setor Atual: {{ documento.setor_atual }}</li>
+      <ul>
+        {% for historico in documento.historico.all %}
+          <li>{{ historico }}</li>
+        {% endfor %}
+      </ul>
+      <form method="post" action="{% url 'mover_documento' documento.id %}">
+        {% csrf_token %}
+        <label for="setor">Mover para:</label>
+        <select name="setor" id="setor">
+          {% for setor in setores %}
+            <option value="{{ setor.id }}" {% if setor == documento.setor_atual %}selected{% endif %}>{{ setor }}</option>
+          {% endfor %}
+        </select>
+        <input type="submit" value="Mover">
+      </form>
+    {% endfor %}
+  </ul>
+  <a href="{% url 'novo_documento' %}">Novo Documento</a>
+
+{% endblock  %}
+
+{% block conteudo2 %}
+{% endblock conteudo2 %}
