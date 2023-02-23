@@ -2,7 +2,7 @@
 
 
 <nav class="sidebar sidebar-offcanvas" id="sidebar">
-  <div class="sidebar-brand-wrapper d-none d-lg-flex align-items-center justify-content-center fixed-top">
+  <div class="sidebar-brand-wrapper d-none d-lg-flex align-items-center justify-content-center fixed-top ">
     <a class="sidebar-brand brand-logo img-xs rounded-circle " href="{%url 'home'%}"><img src="{%static 'images/logocortadaB.png'%}" alt="logo" style="height: 100px; "/></a>
     <a class="sidebar-brand brand-logo-mini " href="{%url 'home'%}"><img src="{%static 'images/logo-mini2.png' %}" alt="logo" style="height: 15px; width: 15px margin: 0px" /></a>
   </div>
@@ -87,7 +87,7 @@
           <li class="nav-item"> <a class="nav-link" href="{% url 'documento_new'%}">Cadastro</a></li>       
           <li class="nav-item"> <a class="nav-link" href="{% url 'documento_lista'%}">Lista</a></li> 
           <li class="nav-item"> <a class="nav-link" href="">Envio</a></li>
-          <li class="nav-item"> <a class="nav-link" href="{% url 'documento_receber'%}">Recebimento</a></li>
+          <li class="nav-item"> <a class="nav-link" href="{% url 'documentosreceber_lista'%}">Recebido</a></li>
         
         </ul>
       </div>

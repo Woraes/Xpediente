@@ -1,4 +1,5 @@
 from datetime import timezone
+import datetime
 from django import forms
 from django.db import models
 
@@ -155,7 +156,7 @@ class Documento(models.Model):
                 ( 'recebido' ,  'Recebido' ),
             ))
     anexo = models.FileField(upload_to='anexo/', null=True , blank=True, verbose_name='Anexo')
-
+    
     data_envio = models.DateTimeField(null=True, blank=True)
     data_recebimento = models.DateTimeField(null=True, blank=True)
     
@@ -171,8 +172,9 @@ class Documento(models.Model):
 class Historico(models.Model):
     documento = models.ForeignKey(Documento, on_delete=models.CASCADE)
     setor = models.ForeignKey(Setor, on_delete=models.CASCADE)
-    data_entrada = models.DateTimeField(default=timezone)
+    data_entrada = models.DateTimeField(null=True, blank=True)
     data_saida = models.DateTimeField(null=True, blank=True)
+    criadopor = models.ForeignKey(User, on_delete=models.PROTECT)
 
     def __str__(self):
         return f"{self.documento} - {self.setor} ({self.data_entrada} - {self.data_saida})"

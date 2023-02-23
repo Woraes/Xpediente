@@ -25,9 +25,9 @@
 </div>
 </div>
  
-<!-- script do modal -->
+{% comment %} <!-- script do modal -->
 <script>
-  $(document).ready(function() {
+    $(document).ready(function() {
     $('#deleteModal').on('show.bs.modal', function (event) {
       var button = $(event.relatedTarget) // Button that triggered the modal
       var recipient = button.data('whatever') // Extract info from data-* attributes
@@ -37,6 +37,6 @@
       modal.find('.modal-title').text('Comfirmação de Apagar')
       modal.find('.modal-body').text('Você está a um caminho sem volta Deseja realmete Excluir?')
     })
-  });
-</script>  
+  })
+</script>   {% endcomment %}
   

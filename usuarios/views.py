@@ -62,7 +62,7 @@ class UsuarioLista(LoginRequiredMixin,ListView):
         return context    
     
     #modo de pesquisar na lista por um objeto e dizer se esta ativo ou não
-    paginate_by = 6
+    paginate_by = 5
     def get_queryset(self):
         txt_nome = self.request.GET.get('username')
         status = self.request.GET.get('is_active')
@@ -135,9 +135,9 @@ class UsuarioDelete(GroupRequiredMixin, LoginRequiredMixin, DeleteView):
     
     
     #Perfil
-class PerfilUpdate(GroupRequiredMixin,LoginRequiredMixin, UpdateView):
+class PerfilUpdate(LoginRequiredMixin, UpdateView):
     login_url = reverse_lazy('login')
-    group_required = u'ADM','Visitante'
+    
     model = Perfil
     fields = ['nome',
                   'cpf',
@@ -145,12 +145,17 @@ class PerfilUpdate(GroupRequiredMixin,LoginRequiredMixin, UpdateView):
                   'telefone',
                   'email',
                   'foto',
-                  'cep'
+                  #'cep',
+                  'prefeitura',
+                  'secretaria',
+                  'setor',
                   ]
     template_name = 'perfil/perfilform.html'
     success_url = reverse_lazy('home')
-        
-        
+     
+    def form_valid(self, form):   
+        messages.success(self.request, 'Perfil Atualizado com sucesso.')
+        return super().form_valid(form)
     #def oara pegar o objeto
     def get_object(self, queryset=None):
         self.object = get_object_or_404(Perfil, usuario=self.request.user)

@@ -29,6 +29,8 @@ from App.gerapdf import GeraPDF
 from django import forms
 from django.contrib.auth.views import LoginView
 
+from usuarios.models import Perfil
+
 
 #models
 from .models import Historico, Prefeitura
@@ -760,10 +762,10 @@ class ColaboradorDelete(GroupRequiredMixin, LoginRequiredMixin, DeleteView):
         return response      
 
 
-#Documentos
+#Documento
 class DocumentoNew(GroupRequiredMixin, LoginRequiredMixin, CreateView,FormView):    
     login_url = reverse_lazy('login')
-    group_required = u'ADM','Gestor'
+    group_required = u'ADM','UBS LEANDRO','UBS MAZOMBA'
     model = Documento
     fields = ['nome',
               'tipo',
@@ -771,36 +773,36 @@ class DocumentoNew(GroupRequiredMixin, LoginRequiredMixin, CreateView,FormView):
               'ano',
               'assunto',
               #'datainicial',
-              'prefeitura',
-              'secretaria',
-              'setor',
+              #'prefeitura',
+              #'secretaria',
+              #'setor',
               #'status',
               'anexo',
               ]
     template_name = 'pages/documento/documentoform.html'
     context_object_name = 'documentos'
-    success_url =  reverse_lazy ('documento_new')  
+    success_url =  reverse_lazy ('documento_lista')  
     
+   #get_initial é um método que retorna um dicionário com os valores iniciais para os campos do formulário. Nesse caso, ele está buscando as informações do perfil do usuário que está acessando a página.
+    def get_initial(self):
+        initial = super().get_initial()
+        perfil = self.request.user.perfil
+        initial['prefeitura'] = perfil.prefeitura_id
+        initial['secretaria'] = perfil.secretaria_id
+        initial['setor'] = perfil.setor_id
+        return initial
+    
+   #form_valid é um método que é chamado após a validação do formulário, e é responsável por salvar os dados no banco de dados. Nesse caso, ele está definindo alguns valores nos campos do objeto do modelo que serão salvos.
     def form_valid(self, form):
-        #definir um valor de usuario oculto para saber qual foi o user que fez a postagem
         data = datetime.date.today()
         form.instance.criadopor = self.request.user
         form.instance.datainicial = data
         form.instance.status = 'registrado'
         form.instance.origem = self.request.user
         form.instance.destino = self.request.user
-        #validação de existente mais messagem flash
-        # nome = form.cleaned_data.get('nome')
-        # matricula = form.cleaned_data.get('matricula')
-        # existing_prefeitura = Colaborador.objects.filter(nome=nome).exists()
-        # if existing_prefeitura:
-        #     messages.info(self.request, "Existe um Colaborador Registrado com esse nome. Por favor escolha outro nome !!! Obrigado")
-        #     return redirect("colaborador_new")
-        # existing_matricula = Colaborador.objects.filter(matricula=matricula).exists()
-        # if existing_matricula:
-        #     messages.info(self.request, "Existe uma Matrícula Registrada. Por favor escolha outra!!! Obrigado")
-        #     return redirect("colaborador_new")
-        # else:
+        form.instance.prefeitura = self.request.user.perfil.prefeitura
+        form.instance.secretaria = self.request.user.perfil.secretaria
+        form.instance.setor = self.request.user.perfil.setor
         response = super().form_valid(form)
         messages.success(self.request, "Documento adicionado com sucesso.")
         return response
@@ -822,23 +824,15 @@ class DocumentoLista(LoginRequiredMixin,ListView):
     context_object_name = 'documentos'
     template_name='pages/documento/documentolista.html'
     
-    #pegando as informaçoes obtidas na class Home e passando para essa view
-    def get_context_data(self, *args, **kwargs):
-        context = super().get_context_data(*args, **kwargs)
-        context.update(Home.as_view()(self.request).context_data)
-        
-        context['titulo'] = 'Registrando Documento'
-        context['botao'] = 'Criar'
-        context['descri'] = 'Registro de Documento.'
-        return context    
+     
     
      #modo de pesquisar na lista por um objeto e dizer se esta ativo ou não
-    paginate_by = 6
+    paginate_by = 0
     def get_queryset(self):
-        txt_numeracao = self.request.GET.get('numeracao')
+        txt_numeracao = self.request.GET.get('nome')
         status = self.request.GET.get('status')
         if txt_numeracao:
-             documento =Documento.objects.filter(numeracao__icontains=txt_numeracao)
+             documento =Documento.objects.filter(nome__icontains=txt_numeracao)
              return documento 
         if status:  
             documento = Documento.objects.filter(status=status)
@@ -847,10 +841,20 @@ class DocumentoLista(LoginRequiredMixin,ListView):
             documento = Documento.objects.all()
         return documento        
      
+    #pegando as informaçoes obtidas na class Home e passando para essa view
+    def get_context_data(self, *args, **kwargs):
+        context = super().get_context_data(*args, **kwargs)
+        context.update(Home.as_view()(self.request).context_data)
+        
+        context['titulo'] = 'Registrando Documento'
+        context['botao'] = 'Criar'
+        context['descri'] = 'Registro de Documento.'
+        return context   
+    
     
 class DocumentoEnviar(GroupRequiredMixin, LoginRequiredMixin, UpdateView):
     login_url = reverse_lazy('login')
-    group_required = u'ADM','Gestor'
+    group_required = u'ADM','UBS LEANDRO','UBS MAZOMBA'
     model = Documento
     fields = [#'nome',
               #'tipo',
@@ -860,85 +864,160 @@ class DocumentoEnviar(GroupRequiredMixin, LoginRequiredMixin, UpdateView):
               #'datainicial',
               #'data_envio',
               #'prefeitura',
-              #'secretaria',
+              'secretaria',
               'setor',
               #'status',
               'anexo',
               ]
-    template_name = 'pages/documento/documentoenviar.html'
+    template_name = 'pages/documento/documentos_mover.html'
     success_url =  reverse_lazy ('documento_lista')   
     
+    #Neste form_validmétodo modificado, primeiro salvamos a Documentoinstância atualizada e, em seguida, obtemos a Setorinstância selecionada do setorcampo do formulário usando a setor_idvariável. Em seguida, criamos o novo Historicoobjeto com as instâncias corretas Documentoe Setorusando o create()método do Historicogerenciador de modelos. Isso deve criar o Historicoobjeto com a Setorinstância correta e evitar o ValueError.
     def form_valid(self, form):
         data = datetime.date.today()
         form.instance.criadopor = self.request.user
         form.instance.status = 'enviado'
         form.instance.data_envio = data
         
+        documento = form.save()
         
-        response = super().form_valid(form)
-        messages.success(self.request, 'Documento Enviado com sucesso.')
-        if response.status_code == 404:
-            messages.error(self.request, 'erro')
-        return response 
+        
+        setor_id = self.request.POST.get('setor')
+        setor = Setor.objects.get(id=setor_id)
+        
+        Historico.objects.create(documento=documento,setor=setor, data_entrada=data, data_saida=data, criadopor=self.request.user)
+            
+
+      
+        messages.success(self.request, 'Documento enviado com sucesso.')
+        return super().form_valid(form)
+
     
     def get_context_data(self, *args, **kwargs):
         context = super().get_context_data(*args, **kwargs)
         
         context['titulo'] = 'Envio de documento '
         context['botao'] = 'Enviar'
-        context['descri'] = 'Edição de Dados.'
+        context['descri'] = 'Dados do Documento'
         
-        return context         
+        return context       
     
     
-    
-    
-class EnviarDocumentoView(LoginRequiredMixin,View):
+class DocumentoRecebido(GroupRequiredMixin, LoginRequiredMixin, UpdateView):
     login_url = reverse_lazy('login')
-    template_name='pages/documento/documentoenviar.html'
+    group_required = u'ADM','UBS LEANDRO','UBS MAZOMBA'
+    model = Documento
+    fields = [#'nome',
+              #'tipo',
+              #'numeracao',
+              #'ano',
+              #'assunto',
+              #'datainicial',
+              #'data_recebimento',
+              #'prefeitura',
+              #'secretaria',
+              #'setor',
+              'status',
+              #'anexo',
+              ]
+    template_name = 'pages/documento/documentos_receber.html'
+    success_url =  reverse_lazy ('documentosreceber_lista')   
     
-    
-    
-    
-    def get(self, request):
-        return render(request, 'pages/documento/documentoenviar.html')
-
-    
-    def post(self, request):
-        origem = request.user
-        destino = request.POST.get('destino')
-        documento = Documento(origem=origem, destino=destino)
-        documento.save()
-        return redirect('documento_enviar')    
-    
-class ReceberDocumentoView(View):
-    
-    
+    #Neste form_validmétodo modificado, primeiro salvamos a Documentoinstância atualizada e, em seguida, obtemos a Setorinstância selecionada do setorcampo do formulário usando a setor_idvariável. Em seguida, criamos o novo Historicoobjeto com as instâncias corretas Documentoe Setorusando o create()método do Historicogerenciador de modelos. Isso deve criar o Historicoobjeto com a Setorinstância correta e evitar o ValueError.
     def form_valid(self, form):
+        data = datetime.date.today()
         form.instance.criadopor = self.request.user
-    
-    def get(self, request):
-        documentos = Documento.objects.filter(destino=request.user, data_recebimento=None)
-        return render(request, 'pages/documento/documentoreceber.html', {'documentos': documentos})
+        form.instance.status = 'recebido'
+        form.instance.data_recebimento = data
+        
+        
+        documento = form.save()
+        
+        
+        setor = self.request.user.perfil.setor
+        
+        Historico.objects.create(documento=documento,setor=setor, data_entrada=data, data_saida=data, criadopor=self.request.user)
+            
 
-    
-    def post(self, request):
-        documento_id = request.POST.get('id')
-        documento = Documento.objects.get(id=documento_id)
-        documento.data_recebimento = datetime.timezone.now()
-        documento.save()
-        return redirect('pages/documento/documentoreceber.html')  
-    
-    
       
-def mover_documento(request, documento_id):
-    documento = get_object_or_404(Documento, pk=documento_id)
-    if request.method == "POST":
-        setor_id = request.POST['setor']
-        setor = get_object_or_404(Setor, pk=setor_id)
-        Historico.objects.create(documento=documento, setor=setor, data_entrada=datetime.timezone.now())
-        documento.setor_atual = setor
-        documento.save()
-        return redirect('lista_documentos')
-    setores = Setor.objects.all()
-    return render(request, 'pages/documento/mover_documento.html', {'documento': documento, 'setores': setores})    
+        messages.success(self.request, 'Documento Recebido com sucesso.')
+        return super().form_valid(form)
+
+  
+    
+    def get_context_data(self, *args, **kwargs):
+        context = super().get_context_data(*args, **kwargs)
+        
+        context['titulo'] = 'Envio de documento '
+        context['botao'] = 'Receber'
+        context['descri'] = 'Dados do Documento'
+        
+        return context      
+ 
+ 
+class DocumentoReceberLista(LoginRequiredMixin,ListView):
+    login_url = reverse_lazy('login')
+    model = Documento
+    context_object_name = 'documentos'
+    template_name='pages/documento/documentoreceberlista.html'
+    
+     
+    
+     #modo de pesquisar na lista por um objeto e dizer se esta ativo ou não
+    paginate_by = 0
+    def get_queryset(self):
+        txt_numeracao = self.request.GET.get('nome')
+        status = self.request.GET.get('status')
+        if txt_numeracao:
+             documento =Documento.objects.filter(nome__icontains=txt_numeracao)
+             return documento 
+        if status:  
+            documento = Documento.objects.filter(status=status)
+            return documento   
+        else:
+            documento = Documento.objects.all()
+        return documento        
+     
+    #pegando as informaçoes obtidas na class Home e passando para essa view
+    def get_context_data(self, *args, **kwargs):
+        context = super().get_context_data(*args, **kwargs)
+        context.update(Home.as_view()(self.request).context_data)
+        
+        context['titulo'] = 'Registrando Documento'
+        context['botao'] = 'Criar'
+        context['descri'] = 'Registro de Documento.'
+        return context    
+ 
+ 
+ 
+    
+class DocumentoView(GroupRequiredMixin, LoginRequiredMixin, UpdateView):
+    login_url = reverse_lazy('login')
+    group_required = u'ADM','UBS LEANDRO','UBS MAZOMBA'
+    model = Documento
+    fields = [#'nome',
+              #'tipo',
+              #'numeracao',
+              #'ano',
+              #'assunto',
+              #'datainicial',
+              #'data_envio',
+              #'prefeitura',
+              'secretaria',
+              'setor',
+              #'status',
+              'anexo',
+              ]
+    template_name='pages/documento/documentoview.html'
+    success_url =  reverse_lazy ('documento_lista')   
+    
+    
+    
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['historicos'] = self.object.historico_set.all()
+        return context
+    
+
+     
+       

@@ -73,10 +73,12 @@
                         <link rel="shortcut icon" href="{% static 'images/favicon.png'%}" />
                       </div>
                       <div class="col-5 col-sm-7 col-xl-8 p-0">
-                        {% if user.first_name %}
+                        {% if user.perfil.nome == NULL %}
                         <h3 class="mb-1 mb-sm-0">{{msg}} {{user.username}} Bem Vindo ao Sistema </h3>
                         <h4>Complete seu Cadastro de Perfil</h4>
-                        {% else %}
+                        <a href="{% url 'perfil_update' %}" class="btn btn-secondary">Completar Perfil</a>
+                        {% endif %}
+                        {% if user.perfil.nome  %}
                         <h3 class="mb-1 mb-sm-0">{{msg}} {{user.perfil.nome}} Bem Vindo ao Sistema </h3>
                         <p class="mb-0 font-weight-normal d-none d-sm-block">Data de Hoje: {{data}}</p>
                         <p "mb-0 font-weight-normal d-none d-sm-block">Seu último acesso foi: {{request.user.last_login}}</p>
@@ -91,6 +93,9 @@
                   </div>
                 </div>
               </div>
+            </div>
+            <div>
+              {% include 'pages/utils/message.html' %}
             </div>
             {% endblock saudacao %}
 
@@ -780,6 +785,7 @@
     <script src="{% static 'vendors/jvectormap/jquery-jvectormap.min.js'%}"></script>
     <script src="{% static 'vendors/jvectormap/jquery-jvectormap-world-mill-en.js'%}"></script>
     <script src="{% static 'vendors/owl-carousel-2/owl.carousel.min.js'%}"></script>
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
     
     <!-- End plugin js for this page -->
     <!-- inject:js -->
@@ -802,7 +808,7 @@
       <!-- Adicionando Javascript -->
 
       <!-- colocando mascaras nosimput -->
-      <script>    
+      {% comment %} <script>    
         $(document).ready(function() {
 
           alert('oi')
@@ -811,7 +817,7 @@
           $("#id_telefone").mask("+55 00 00000-0000")
 
         }):
-        </script>
+        </script> {% endcomment %}
 
            <!-- inserir dados no form-->
         <script>
@@ -829,7 +835,14 @@
             }
           }; {% endcomment %}
         </script>
-
+        <script>
+          $(function() {
+            if (window.location.pathname === '/documentolista.html/') {
+              $('#toggle').addClass('collapsed');
+            }
+          });
+          </script>
+          
 
     
     {% endblock %}

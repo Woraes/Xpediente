@@ -25,8 +25,7 @@
             <form class="nav-link mt-2 mt-md-0 d-none d-lg-flex w-100 search " action="?" method="GET">
                 <tr style="background: #262424;">
                     
-                   <th><input type="text" name="username" id="" value="{{request.GET.username}}" class="form-control"   autocomplete="on" placeholder="Pesquise Nome"></th> 
-                   {% comment %} <th><input type="text" name="cpf" id="" value="{{request.GET.cpf}}" class="p-1 " autocomplete="off" placeholder="Pesquise CPF"></th>  {% endcomment %}
+                <th><input type="text" name="username" id="" value="" class="form-control"   autocomplete="off" placeholder="Pesquise Nome"></th> 
                 <th>
                     <button class="btn btn-primary" id="button" type="submit">Buscar</button>
                     <a class="btn btn-primary" href="{% url 'usuario_lista'%}">Limpar</a>
@@ -74,9 +73,9 @@
                     <a href="{% url 'usuario_delete' usuario.id %}"class="btn btn-danger", title='Deletar'  ><i class="bi bi-trash"></i></a>  
                     <a href=""class="btn btn-bg-success", title='pdf'  ><i class="bi bi-filetype-pdf"></i></a>                   
                 
-                    <button type="button" class="btn btn-danger" data-toggle="modal" data-target="#deleteModal">
+                    {% comment %} <button type="button" class="btn btn-danger" data-toggle="modal" data-target="#deleteModal">
                         Delete
-                      </button>
+                      </button> {% endcomment %}
 
                 </td>
               

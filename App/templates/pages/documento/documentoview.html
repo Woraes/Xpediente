@@ -3,34 +3,33 @@
 {% load static %}
 
 {% block titulo %}
-<title>Cadastro doc</title>
+<title>Doc View</title>
 {% endblock  %}
 
 {% block conteudo %}
-
-<h1>Documento {{ documento.nome }}</h1>
+<h2>Dados do documento</h2>
+<h3>Nome:{{ documento.nome }}</h3>
 <p>Numeração: {{documento.numeracao}}</p>
 <p>Data de criação: {{ documento.datainicial }}</p>
 <p>Origem: 
     {{ documento.prefeitura.nome }},
     {{ documento.secretaria.nome}}
     Setor: {{ documento.setor.nome}}
-
 </p>
 <p>Status: {{ documento.status }}</p>
-{% if documento.status == 'registrado' %}
-<a href="{% url 'secretaria_lista' %}" class="btn btn-info">Cancelar</a>
-<a href="{% url 'secretaria_lista' %}" class="btn btn-info">Encaminhar</a>
 
 
+<h2>Histórico de Movimentação</h2>
+<ul>
+{% for historico in historicos %}
+  <li>Data: {{ historico.data_saida }} - Local Origem:  {{ historico.setor.nome }}- Movimentado por {{historico.criadopor}}</li>
+{% empty %}
+  <li>Nenhum histórico encontrado.</li>
+{% endfor %}
+</ul>
+<a href="{% url 'documento_lista' %}"class="btn btn-warning", title='Voltar'>Voltar</a> 
 
 
-{% elif documento.status == 'enviado' %}
-<form method="POST" action="{% url 'confirmar_recebimento' id=documento.id %}">
-{% csrf_token %}
-<button type="submit">Confirmar recebimento</button>
-</form>
-{% endif %}
 
 {% endblock conteudo %}
 

@@ -42,7 +42,11 @@
 
           <div class="form-group col-md-4">
             <h3>Grupos Anteriores desse Usuário</h3>
+            {%if grupo_anteriores %}
             {{grupos_anteriores}}
+            {% else %}
+            <p>Nenhum Grupo Selecionado</p>
+            {% endif %}
           </div>
 
           <div class="form-group col-md-4">

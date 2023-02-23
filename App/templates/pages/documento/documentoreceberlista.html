@@ -4,14 +4,14 @@
 
 
 {%block titulo%} 
-<title>Lista de Documentos </title>
+<title>Lista de Documentos a Receber </title>
 {% endblock %}
 
 
 
 {%block conteudo%}
 <div class="card ">
-    <h4 class="card-title"><i class="bi bi-list-stars" style="font-size: 2rem; color: #0090e7;"></i> Lista de Documentos</h4>
+    <h4 class="card-title"><i class="bi bi-list-stars" style="font-size: 2rem; color: #0090e7;"></i> Documentos Recebidos</h4>
     <div class="card bg-pri align-content-center text-align-items-center">
         {% include 'pages/utils/message.html' %}
       </div>
@@ -44,7 +44,8 @@
                         <label class="mdi-label"  for="enviado">Enviado:</label>
                         <input  type="checkbox" name="status" id="enviado" value="enviado">
 
-                      
+                        {% comment %} <label class="mdi-label"  for="recebido">Recebido:</label>
+                        <input  type="checkbox" name="status" id="inativo" value="inativo"> {% endcomment %}
                         <button class="btn btn-primary ml-2" id="button" type="submit">Filtrar</button>
                         </div>
                     </form>
@@ -60,33 +61,31 @@
                 <th style="width: 10%; font-size: 1rem; color: #0090e7;"><strong>Numeração</strong></th>
                 <th style="width: 20%; font-size: 1rem; color: #0090e7;"><strong>Tipo</strong></th> 
                 <th style="width: 20%; font-size: 1rem; color: #0090e7;"><strong>Origem</strong></th> 
+                <th style="width: 20%; font-size: 1rem; color: #0090e7;"><strong>Operador</strong></th> 
                 <th style="width: 20%; font-size: 1rem; color: #0090e7;"><strong>Status</strong></th>
                 <th style="width: 20%; font-size: 1rem; color: #0090e7;"><strong>Opções</strong></th>
             </tr>
         </thead>
             
             {%for documento in documentos %}
-            {% if documento.criadopor_id == user.id %}
+            {% if documento.criadopor_id != user.id and documento.status != 'recebido' and documento.status != 'registrado' %}
+            
+            
             <tbody>      
             <tr style="margin: 20px;">
                 <td style="width: 30%; font-size: 1rem; color: #ebe6f2; ">{{documento.nome}}</td>
                 <td style="width: 10%; font-size: 1rem; color: #ebe6f2; ">{{documento.numeracao}}</td>
                 <td style="width: 20%; font-size: 1rem; color: #ebe6f2;">{{documento.tipo}}</td>
                 <td style="width: 20%; font-size: 1rem; color: #ebe6f2;">{{documento.setor.nome}}</td>
+                <td style="width: 20%; font-size: 1rem; color: #ebe6f2;">{{documento.criadopor}}</td>
                 <td style="width: 20%; font-size: 1rem; color: #ebe6f2; ">{{documento.status}}</td>
 
                 <td>
-                    {%if documento.status == 'registrado' %}
-                    <a href="{% url 'documentos_mover' documento.id %}"class="btn btn-primary", title='Encaminhar'><i class="bi bi-pencil-square" style="font-size: 1rem; ">Encaminhar</i></a> 
-                
+                    {%if documento.status == 'enviado' %}
+                    <a href="{% url 'documento_recebido' documento.id %}"class="btn btn-primary", title='Receber'><i class="bi bi-pencil-square" style="font-size: 1rem; ">Receber</i></a> 
                     {% endif %}
-                    {% if documento.status == 'enviado'  %}  
-                    <a href="{% url 'documento_view' documento.id %}"class="btn btn-warning", title='Visualizar'><i class="bi bi-pencil-square" style="font-size: 1rem;">Visualizar</i></a> 
-                    {% endif %}
-                    {% if documento.status == 'recebido'  %}  
-                    <a href="{% url 'documentos_mover' documento.id %}"class="btn btn-info", title='Encaminhar'><i class="bi bi-pencil-square" style="font-size: 1rem; ">Reencaminhar</i></a> 
-                    <a href="{% url 'documentos_mover' documento.id %}"class="btn btn-danger", title='Encaminhar'><i class="bi bi-trash3-fill" style="font-size: 1rem; "></i></a> 
-                    {% endif %}
+
+                   
                 </td>
                 {% endif %}  
                  </tr>

@@ -20363,6 +20363,13 @@ div.tagsinput {
     text-decoration: underline; }
 
 /* Navbar */
+
+
+.minimized-sidebar {
+  width: 10px; /* definir a largura desejada para a barra lateral minimizada */
+}
+
+
 .navbar {
   font-weight: normal;
   background: #191c24;

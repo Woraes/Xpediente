@@ -4,7 +4,7 @@ from .views import Home, PrefeituraNew, PrefeituraLista,PrefeituraUpdate,Prefeit
 from .views import GerarPdfView
 from .views import prefeitura_view,SecretariaUpdate,SecretariaDelete,SetorNew,SetorLista, SetorUpdate,SetorDelete
 from .views import ColaboradorNew,ColaboradorLista,ColaboradorUpdate,ColaboradorDelete
-from .views import DocumentoNew,DocumentoLista,DocumentoEnviar,EnviarDocumentoView,ReceberDocumentoView
+from .views import DocumentoNew,DocumentoLista,DocumentoEnviar,DocumentoReceberLista,DocumentoRecebido,DocumentoView
 from .views import requisicao_api
 from django.contrib.auth import views as auth_views
 
@@ -51,9 +51,11 @@ urlpatterns = [
     #Documentos
     path('documento_new/', DocumentoNew.as_view(), name='documento_new'),
     path('documento_lista/', DocumentoLista.as_view(), name='documento_lista'),
-    path('documento_enviar/<int:pk>', DocumentoEnviar.as_view(), name='documento_enviar'),
-    path('documento_receber/', ReceberDocumentoView.as_view(), name='documento_receber'),
-    path('documentos/mover/<int:documento_id>/', views.mover_documento, name='mover_documento'),
+    path('documentos_mover/<int:pk>', DocumentoEnviar.as_view(), name='documentos_mover'),
+    path('documentosreceber_lista/', DocumentoReceberLista.as_view(), name='documentosreceber_lista'),
+    path('documento_recebido/<int:pk>', DocumentoRecebido.as_view(), name='documento_recebido'),
+    path('documento_view/<int:pk>', DocumentoView.as_view(), name='documento_view'),
+
 
 
 ]
